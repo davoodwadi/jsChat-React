@@ -9,7 +9,7 @@ const userTemplate = `<|start_header_id|>user<|end_header_id|>\n\`\`\`{text}\`\`
 const assistantTag = `<|start_header_id|>assistant<|end_header_id|>\n`
 const assistantEOT = `<|eot_id|>\n\n`
 const assistantPrompt = `${assistantTag}{text}${assistantEOT}`
-
+const log = console.log
 async function handleDOMContentLoaded() {
     let messageElement = document.getElementById('first-message')
     let container = messageElement.parentElement;
@@ -51,6 +51,7 @@ async function handleDOMContentLoaded() {
         let target = event.target
         let branch = target.parentElement
         let branchContainer = branch.parentElement
+        let elementToFocus
         // console.log('first')
         // console.log(first)
         // console.log(branch.classList.contains('branch'))
@@ -72,6 +73,8 @@ async function handleDOMContentLoaded() {
             messageElement.oldContent = messageElement.textContent
             messageElement.triggeredBefore = true;
             branch.appendChild(messageElement);
+            // set element to focus to
+            elementToFocus = messageElement;
             // set the old content
             console.log(`setting target's content to ${oldContent}`)
             target.textContent = oldContent
@@ -129,7 +132,8 @@ async function handleDOMContentLoaded() {
             // add bot message and followup user message
             messageElement = await createMessageElement('bot', messages);
             branch.replaceChild(messageElement, dots)
-            // branch.appendChild(messageElement);
+            // set element to focus to
+            elementToFocus = messageElement;
 
 
             // create branch-container within branch.        
@@ -147,6 +151,11 @@ async function handleDOMContentLoaded() {
         }
         target.triggeredBefore = true
         
+        if(elementToFocus.role==='bot'){
+            elementToFocus.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
+        } else {
+            elementToFocus.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
+        }
     
     };
 
