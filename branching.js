@@ -174,8 +174,8 @@ async function handleDOMContentLoaded() {
         if (role==='bot'){
             messageElement.classList.add('editable', 'message', role);
             messageElement.contentEditable = true;
-            messageElement.textContent = pretext + '\n\n' + (await getDummyMessage())
-            // messageElement.textContent = await getResponseServer(pretext)
+            // messageElement.textContent = pretext + '\n\n' + (await getDummyMessage())
+            messageElement.textContent = await getResponseServer(pretext)
         } else {
             messageElement.classList.add('editable', 'message', role);
             console.log(messageElement.classList)

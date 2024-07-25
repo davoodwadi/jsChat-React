@@ -11,6 +11,7 @@ body {
 #chat-container {
     width: 90%;
     /* max-width: 600px; */
+    /* margin-right: 150px; */
 }
  
 #chat-box {
@@ -18,12 +19,16 @@ body {
     border-radius: 8px;
     background: #fff;
     padding: 10px;
+    /* margin-right: 150px; */
+    
 }
 
 #messages {
     display: flex;
     flex-direction: column;
-    margin-top: 300px;
+    margin-top: 150px;
+    margin-bottom: 150px;
+    margin-right: 150px;
 }
 
 .message {
