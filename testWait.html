@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Typing Indicator</title>
+    <style>
+        #chat-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        #chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+            position: relative;
+            background-color: #fff;
+        }
+        #first-message {
+            height: 100px;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 80%;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .message.bot {
+            background-color: #e1ffc7;
+            align-self: flex-start;
+        }
+        .message.user {
+            background-color: #d0e6ff;
+            align-self: flex-end;
+        }
+        .dots-container {
+            display: flex;
+            gap: 8px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #3498db;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-box">
+            <div id="messages">
+                <div id="first-message" class="editable message user" contenteditable="true" data-placeholder="Type your text here..."></div>
+                <!-- Bot Typing Indicator -->
+                <div class="message bot">
+                    <div class="dots-container">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
