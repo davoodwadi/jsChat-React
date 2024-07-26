@@ -1,4 +1,4 @@
-Certainly! Below is an example of a Python function that trains a Multi-Layer Perceptron (MLP) using the `MLPClassifier` from the `scikit-learn` library. This example includes necessary imports, dataset preparation, model training, and evaluation.
+The `MLPClassifier` from the `scikit-learn` library.
 
 ```python
 import numpy as np

@@ -28,7 +28,7 @@ body {
     flex-direction: column;
     margin-top: 150px;
     margin-bottom: 150px;
-    margin-right: 150px;
+    /* margin-right: 150px; */
 }
 
 .message {
@@ -61,6 +61,13 @@ body {
 
 .branch {
     flex: 1;
+    margin: 0 5px;
+}
+
+.code-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     margin: 0 5px;
 }
 

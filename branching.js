@@ -194,6 +194,7 @@ async function handleDOMContentLoaded() {
             messageElement.contentEditable = true;
             // messageElement.textContent = pretext + '\n\n' + (await getDummyMessage())
             const llmResponse = await getResponseServer(pretext)
+            log(llmResponse)
             // parse llmResponse from md to html
             const html = md.render(llmResponse);
             const cleanHTML = DOMPurify.sanitize(html);

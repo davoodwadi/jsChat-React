@@ -50,8 +50,8 @@ export async function getResponseServer(text){
                     inputs: text,
         
                     parameters: {
-                        temperature: 0.1,
-                        max_new_tokens: 100,
+                        // temperature: 0.1,
+                        max_new_tokens: 1000,
                         return_full_text: false,
                     }
 
