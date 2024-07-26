@@ -1,5 +1,6 @@
 import markdownIt from 'https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/+esm'
 import { getResponseServer } from "./apiModule.js";
+import { mdToHTML } from './md.js';
 
 let bot_default_message = `To ensure that messages in the chat interface wrap and display as multiline when the text is too long to fit in one line, you need to update the CSS to allow for word wrapping and handling overflow appropriately.
  
@@ -29,6 +30,7 @@ const md = markdownIt({
 
 
 async function handleDOMContentLoaded() {
+    
     let messageElement = document.getElementById('first-message')
     let container = messageElement.parentElement;
     // console.log(messageElement.textContent)
@@ -93,6 +95,7 @@ async function handleDOMContentLoaded() {
             branch.appendChild(messageElement);
             // set element to focus to
             elementToFocus = messageElement;
+            elementToFocus.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
             // set the old content
             console.log(`setting target's content to ${oldContent}`)
             target.textContent = oldContent
@@ -195,12 +198,14 @@ async function handleDOMContentLoaded() {
             // messageElement.textContent = pretext + '\n\n' + (await getDummyMessage())
             const llmResponse = await getResponseServer(pretext)
             log(llmResponse)
+            mdToHTML(llmResponse, messageElement);
             // parse llmResponse from md to html
-            const html = md.render(llmResponse);
-            const cleanHTML = DOMPurify.sanitize(html);
-            log(cleanHTML)
-            //
-            messageElement.innerHTML = cleanHTML
+            // const html = md.render(llmResponse);
+            // const cleanHTML = DOMPurify.sanitize(html);
+            // log(cleanHTML)
+            // //
+            // messageElement.innerHTML = cleanHTML
+
 
         } else {
             messageElement.classList.add('editable', 'message', role);

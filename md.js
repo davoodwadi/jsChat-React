@@ -13,6 +13,93 @@ const mdWrapped = markdownIt({
     return '<pre><code class="hljs">' + md.utils.escapeHtml(str) + '</code></pre>';
   }
 });
+
+function putInCodeContainer(highlightedCode, rawCode, language){
+  // message bot
+    // div: text markdown
+    // code-container; highlighted code
+  const codeContainer = document.createElement('div');
+  codeContainer.classList.add('code-container');
+
+  const header = document.createElement('div');
+  header.classList.add('header');
+
+  const part1 = document.createElement('div');
+  part1.innerHTML = `${language}`;
+  
+
+  // const part2 = document.createElement('div');
+  // part2.classList.add('clipboard', 'non-editable');
+  // part2.innerHTML = '<i class="fa-duotone fa-solid fa-copy"></i> Copy code';
+  const part2 = document.createElement('button');
+  part2.classList.add('clipboard');
+  part2.innerHTML = '<i class="fa-duotone fa-solid fa-copy"></i> Copy code';
+
+  header.appendChild(part1);
+  header.appendChild(part2);
+
+  const codeBlock = document.createElement('pre');
+  
+  codeBlock.innerHTML = `<code class="hljs">${highlightedCode}</code>`;
+
+  codeContainer.appendChild(header);
+  codeContainer.appendChild(codeBlock);
+  
+  // Add the copy functionality
+  part2.addEventListener('click', () => {
+    navigator.clipboard.writeText(rawCode).then(() => {
+      console.log('Text copied to clipboard');
+    }).catch(err => {
+      console.error('Could not copy text: ', err);
+    });
+  });
+  return codeContainer
+};
+
+function parseTextBlocks(text) {
+  const blocks = [];
+  const regex = /```(\w+)?\n([\s\S]*?)```|([\s\S]+?)(?=```|$)/g;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+      if (match[1]) {
+          // Code block
+          blocks.push({
+              language: match[1],
+              text: match[2].trim()
+          });
+      } else {
+          // Text block
+          blocks.push({
+              language: null,
+              text: match[3].trim()
+          });
+      }
+  }
+  return blocks;
+};
+
+export function mdToHTML(fileText, botMessage){
+  // to prevent uncaught errors
+  if (!botMessage){
+    return
+  }
+  let blocks = parseTextBlocks(fileText)
+  let cleans = blocks.map(block => block.language ? putInCodeContainer(hljs.highlight(block.text, {language:block.language}).value, block.text, block.language) : md.render(block.text))    
+  
+  for (const el of cleans){
+    if (typeof el === 'string'){
+      let tempDiv = document.createElement('div')
+      tempDiv.innerHTML = el.trim()
+      botMessage.appendChild(tempDiv)
+    } else {
+      botMessage.appendChild(el)
+    }
+  }
+};
+
+
+
 const md = markdownIt()
 
 let fileText = `
@@ -64,121 +151,34 @@ You can customize the parameters of the \`MLPClassifier\` to suit your specific 
 
 `.trim()
 
-async function handleDOMContentLoaded() {
+// async function handleDOMContentLoaded() {
+
+//     const log = console.log
+//     const textBox1 = document.getElementById('bot-message1');
+//     const textBox2 = document.getElementById('bot-message2');
+//     const textBox3 = document.getElementById('bot-message3');
+//     mdToHTML(fileText, textBox1)
+//     mdToHTML(fileText, textBox2)
     
-    const log = console.log
-    const textBox1 = document.getElementById('bot-message1');
-    const textBox2 = document.getElementById('bot-message2');
-    const textBox3 = document.getElementById('bot-message3');
+//     const htmlPlain = md.render(fileText);
+//     // textBox2.innerHTML = htmlPlain
+//     const js_text = `
+//     const textBox1 = document.getElementById('bot-message1');
+//     const textBox2 = document.getElementById('bot-message2');
+//     const textBox3 = document.getElementById('bot-message3');
 
-    //
-    const codeBlockRegex = /```(\w+)\n([\s\S]*?)```/g;
-    let match;
-    const codeBlocks = [];
+//     console.log("Hello world")
+//     `.trim()
+//     const htmlH = hljs.highlight(js_text, {language:'javascript'})
+//     // const domPure = DOMPurify.sanitize(htmlHighlight);
+//     log('htmlH')
+//     log(htmlH)
+//     log('*'.repeat(30))
+//     const codeContainer = putInCodeContainer(htmlH.value, js_text, 'javascript')
+//     textBox3.appendChild(codeContainer)
 
-    while ((match = codeBlockRegex.exec(fileText)) !== null) {
-        const language = match[1];
-        const codeBlock = match[2];
-        codeBlocks.push({ language, codeBlock });
-    }
-    // console.log(codeBlocks);
-    //
-
-    // const htmlWrapped = mdWrapped.render(fileText);
-    // textBox2.innerHTML = htmlWrapped
-    // log('htmlWrapped')
-    // log(htmlWrapped)
-    // log('*'.repeat(30))
-
-    const htmlPlain = md.render(fileText);
-    // textBox2.innerHTML = htmlPlain
-    // log('htmlPlain')
-    // log(htmlPlain)
-    // log('*'.repeat(30))
-    // const htmlHighlight = hljs.highlightAuto(htmlPlain).value
-    // const htmlHighlight = hljs.highlightAuto(htmlPlain).value
-    const js_text = `
-    const textBox1 = document.getElementById('bot-message1');
-    const textBox2 = document.getElementById('bot-message2');
-    const textBox3 = document.getElementById('bot-message3');
-
-    console.log("Hello world")
-    `.trim()
-    const htmlH = hljs.highlight(js_text, {language:'javascript'})
-    // const domPure = DOMPurify.sanitize(htmlHighlight);
-    log('htmlH')
-    log(htmlH)
-    log('*'.repeat(30))
-    const codeContainer = document.createElement('div')
-    codeContainer.classList.add('code-container')
-
-    const part1 = document.createElement('div')
-    part1.textContent = 'JS'
-    const part2 = document.createElement('div')
-    part2.classList.add('clipboard')
-    part2.textContent = 'copy'
-    
-    codeContainer.appendChild(part1)
-    codeContainer.appendChild(part2)
-    
-    textBox3.code = js_text
-    // textBox3Parent.appendChild(codeContainer)
-    log('codeContainer.outerHTML')
-    log(codeContainer.outerHTML)
-    textBox3.innerHTML = `${codeContainer.outerHTML}<pre><code id="jscode" class="hljs">${htmlH.value}</code></pre>`;
-    log('textBox3.textContent')
-    log(textBox3.textContent)
-    log('textBox3.innerHTML')
-    log(textBox3.innerHTML)
-    const jsCodeBlock = document.getElementById('jscode')
-    // log(jsCodeBlock)
-
-    // document.getElementById('fileInput').addEventListener('change', function(event) {
-    //     const file = event.target.files[0]; // Get the selected file
-    //     if (file) {
-    //         const reader = new FileReader(); // Create a FileReader object
-
-    //         reader.onload = function(e) {
-    //             const text = e.target.result; // Get the text from the file
-
-    //             fileText = text; // Display the text in the <pre> element
-      
-    //             const htmlWrapped = mdWrapped.render(fileText);
-    //             textBox1.innerHTML = htmlWrapped
-    //             log('htmlWrapped')
-    //             log(htmlWrapped)
-    //             log('*'.repeat(30))
-
-    //             const htmlPlain = md.render(fileText);
-    //             textBox2.innerHTML = htmlPlain
-    //             log('htmlPlain')
-    //             log(htmlPlain)
-    //             log('*'.repeat(30))
-    //             // const htmlHighlight = hljs.highlightAuto(htmlPlain).value
-    //             const htmlHighlight = hljs.highlightAuto(htmlPlain).value
-    //             const domPure = DOMPurify.sanitize(htmlHighlight);
-    //             log('domPure')
-    //             log(domPure)
-    //             log('*'.repeat(30))
-    //             textBox3.innerHTML = domPure
-              
-                
-    //         };
-
-    //         reader.onerror = function(e) {
-    //             console.error('Error reading file', e);
-    //         };
-
-    //         reader.readAsText(file); // Read the file as text
-    //     } else {
-    //         console.log('No file selected');
-    //     }
-    // });
-    
-    
-    
-};
+// };
 
 
-// Add event listener for DOMContentLoaded and call the async function
-document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
+// // Add event listener for DOMContentLoaded and call the async function
+// document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
