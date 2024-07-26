@@ -1,15 +1,33 @@
+import markdownIt from 'https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/+esm'
 import { getResponseServer } from "./apiModule.js";
+
 let bot_default_message = `To ensure that messages in the chat interface wrap and display as multiline when the text is too long to fit in one line, you need to update the CSS to allow for word wrapping and handling overflow appropriately.
  
 Here’s how you can adjust the CSS to ensure that messages are displayed in multiple lines within the chat interface: `
 const systemTemplate = `<|start_header_id|>system<|end_header_id|>\n{text}<|eot_id|>\n\n`;
-const systemMessage = `You are a helpful assistant. You respond with brief, to the point, and useful responses.`;
+const systemMessage = `You are a helpful assistant. You respond with brief, to the point, and useful responses. You should always output your responses in MarkDown.`;
 const systemPrompt = systemTemplate.replace('{text}', systemMessage);
 const userTemplate = `<|start_header_id|>user<|end_header_id|>\n\`\`\`{text}\`\`\`<|eot_id|>\n\n`;
 const assistantTag = `<|start_header_id|>assistant<|end_header_id|>\n`
 const assistantEOT = `<|eot_id|>\n\n`
 const assistantPrompt = `${assistantTag}{text}${assistantEOT}`
 const log = console.log
+
+const md = markdownIt({
+    highlight: function (str, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        try {
+          return '<pre><code class="hljs">' +
+                 hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+                 '</code></pre>';
+        } catch (__) {}
+      }
+  
+      return '<pre><code class="hljs">' + md.utils.escapeHtml(str) + '</code></pre>';
+    }
+  });
+
+
 async function handleDOMContentLoaded() {
     let messageElement = document.getElementById('first-message')
     let container = messageElement.parentElement;
@@ -175,7 +193,14 @@ async function handleDOMContentLoaded() {
             messageElement.classList.add('editable', 'message', role);
             messageElement.contentEditable = true;
             // messageElement.textContent = pretext + '\n\n' + (await getDummyMessage())
-            messageElement.textContent = await getResponseServer(pretext)
+            const llmResponse = await getResponseServer(pretext)
+            // parse llmResponse from md to html
+            const html = md.render(llmResponse);
+            const cleanHTML = DOMPurify.sanitize(html);
+            log(cleanHTML)
+            //
+            messageElement.innerHTML = cleanHTML
+
         } else {
             messageElement.classList.add('editable', 'message', role);
             console.log(messageElement.classList)
