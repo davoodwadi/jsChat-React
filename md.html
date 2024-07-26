@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Machine - Infinitely Customizable LLM Chatbot</title>
+    <link rel="stylesheet" href="branching.css">
+    <link href="
+https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.10.0/styles/default.min.css
+" rel="stylesheet">
+</head>
+<body>
+    <div id="'vanilla"></div>
+    <div id="chat-container">
+        <div id="chat-box">
+            <div id="messages">
+                <div class="branch-container">
+                    <div class="branch">
+                        <input type="file" id="fileInput">
+                        <div id="first-message" class="editable message user" contenteditable="true" data-placeholder="New message"></div>
+                        <div id="bot-message" class="editable message bot" contenteditable="true"></div>
+                    </div>  
+                </div>  
+            </div>
+        </div>
+    </div>
+    <script src='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@latest/build/highlight.min.js'></script>
+    <script type="text/javascript" src="dist/purify.min.js"></script>
+    <script type="module" src="md.js"></script>
+</body>
+</html>
