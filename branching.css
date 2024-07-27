@@ -69,6 +69,21 @@ body {
     flex: 1;
     margin: 0 5px;
 }
+blockquote {
+    font-family: Arial, sans-serif;
+    font-size: 1.1em;
+    font-style: italic;
+    color: #555555;
+    border-left: 4px solid #e6f7ff;
+    margin: 20px 0;
+    padding: 10px 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+blockquote p {
+    margin: 0;
+}
 
 /* .code-container {
     display: flex;

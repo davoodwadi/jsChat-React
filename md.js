@@ -1,5 +1,5 @@
 import markdownIt from 'https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/+esm'
-
+const log = console.log
 const mdWrapped = markdownIt({
   highlight: function (str, lang) {
     if (lang && hljs.getLanguage(lang)) {
@@ -34,7 +34,7 @@ function putInCodeContainer(highlightedCode, rawCode, language){
   const part2 = document.createElement('button');
   part2.classList.add('clipboard');
   part2.innerHTML = '<i class="fa-duotone fa-solid fa-copy"></i> Copy code';
-
+ 
   header.appendChild(part1);
   header.appendChild(part2);
 
@@ -63,6 +63,8 @@ function parseTextBlocks(text) {
 
   while ((match = regex.exec(text)) !== null) {
       if (match[1]) {
+        log(match[1])
+        log('match[1]')
           // Code block
           blocks.push({
               language: match[1],
@@ -70,6 +72,8 @@ function parseTextBlocks(text) {
           });
       } else {
           // Text block
+          log('match[3]')
+          log(match[3])
           blocks.push({
               language: null,
               text: match[3].trim()
@@ -79,30 +83,115 @@ function parseTextBlocks(text) {
   return blocks;
 };
 
+function parseTextBlocksResilient(text) {
+  const blocks = [];
+  
+  let match;
+
+
+  return blocks;
+};
+
 export function mdToHTML(fileText, botMessage){
   // to prevent uncaught errors
   if (!botMessage){
     return
   }
-  let blocks = parseTextBlocks(fileText)
-  let cleans = blocks.map(block => block.language ? putInCodeContainer(hljs.highlight(block.text, {language:block.language}).value, block.text, block.language) : md.render(block.text))    
-  
-  for (const el of cleans){
-    if (typeof el === 'string'){
-      let tempDiv = document.createElement('div')
-      tempDiv.innerHTML = el.trim()
-      botMessage.appendChild(tempDiv)
+  log('fileText')
+  log(fileText)
+  // let blocks = parseTextBlocksResilient(fileText)
+  // Regular expression to match triple backticks
+  const regex = /```/;
+  // log('split')
+  // log('```python'.split('```')[1])
+  // Find all occurrences of the triple backticks
+  const textNLines = fileText.split('\n')
+  let chunks = []
+  let text = ''
+  let hasTicks
+  let language = null
+  let numBackTicks=0
+  for (const tex of textNLines){
+    hasTicks = regex.test(tex)
+    if (hasTicks){
+      // add to numBackTicks
+      numBackTicks+=1
+      // add previous text to chunk
+      chunks.push({'text': text.trim(), 'language': language})
+      // get language
+      language = tex.split('```')[1]
+      if (language==='' && numBackTicks%2===1){
+        language = 'quote'
+      } else if (language==='') {
+        language = null
+      }
+
+      // get text
+      text = ''
     } else {
-      botMessage.appendChild(el)
-    }
+      text += "\n" + tex
+    };
+    
+    // log(tex)
+    // log(hasTicks)
+    // log('*'.repeat(50))
   }
+  chunks.push({'text': text.trim(), 'language': language})
+  
+  // remove empty or \n
+  chunks = chunks.filter(chunk => chunk.text.trim()!=='')
+
+  console.log('chunks')
+  console.log(chunks)
+  // const matches = fileText.match(regex);
+  // let blocks = textNLines
+  // log('blocks')
+  // log(blocks)
+  // log('*'.repeat(50))
+  // let cleans = blocks.map(block => block.language ? putInCodeContainer(hljs.highlight(block.text, {language:block.language}).value, block.text, block.language) : md.render(block.text))    
+  let cleans = []
+  let output
+  let temp
+  for (const item of chunks){
+    if (item.language==='quote'){
+      item.text = item.text.split('\n').map(line => '> ' + line).join('\n')
+      temp = md.render(item.text)
+      output = document.createElement('div')
+      // output.classList.add('code-container')
+      output.innerHTML = temp.trim()
+    } else if (item.language===null) {
+      temp = md.render(item.text)
+      output = document.createElement('div')
+      output.innerHTML = temp.trim()
+    } else {
+      try {
+        // code
+        output = putInCodeContainer(hljs.highlight(item.text, {language:item.language, ignoreIllegals: true}).value, item.text, item.language)
+      } catch (error) {
+        // not code
+        // unknown lang
+        output = putInCodeContainer(md.utils.escapeHtml(item.text), item.text, item.language)
+      }
+    }
+
+    cleans.push(output)
+    botMessage.appendChild(output)
+  
+  };
 };
 
 
 
-const md = markdownIt()
+// const md = markdownIt()
+// enable everything
+const md = markdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  breaks: true,
+})
 
-let fileText = `
+const textJsPyth = `
 The \`MLPClassifier\` from the \`scikit-learn\` library.
 \`\`\`python
 import numpy as np
@@ -151,34 +240,166 @@ You can customize the parameters of the \`MLPClassifier\` to suit your specific 
 
 `.trim()
 
-// async function handleDOMContentLoaded() {
+const textTicks = `
+The \`MLPClassifier\` from the \`scikit-learn\` library.
+\`\`\`dfgdfg
+import numpy as np
+from sklearn.datasets import make_classification
 
-//     const log = console.log
-//     const textBox1 = document.getElementById('bot-message1');
-//     const textBox2 = document.getElementById('bot-message2');
-//     const textBox3 = document.getElementById('bot-message3');
-//     mdToHTML(fileText, textBox1)
-//     mdToHTML(fileText, textBox2)
+def train_mlp(hidden_layer_sizes=(100,), activation='relu', solver='adam', alpha=0.0001, batch_size='auto', learning_rate='constant', learning_rate_init=0.001, max_iter=200):
     
-//     const htmlPlain = md.render(fileText);
-//     // textBox2.innerHTML = htmlPlain
-//     const js_text = `
-//     const textBox1 = document.getElementById('bot-message1');
-//     const textBox2 = document.getElementById('bot-message2');
-//     const textBox3 = document.getElementById('bot-message3');
+    # Split the dataset into training and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Standardize the features
+    scaler = StandardScaler()
+    
+    # Print the results
+    print(f'Accuracy: {accuracy}')
+    
+    return mlp
 
-//     console.log("Hello world")
-//     `.trim()
-//     const htmlH = hljs.highlight(js_text, {language:'javascript'})
-//     // const domPure = DOMPurify.sanitize(htmlHighlight);
-//     log('htmlH')
-//     log(htmlH)
-//     log('*'.repeat(30))
-//     const codeContainer = putInCodeContainer(htmlH.value, js_text, 'javascript')
-//     textBox3.appendChild(codeContainer)
+# Example usage
+trained_mlp = train_mlp()
+\`\`\`
 
-// };
+1. **Data Generation**: Uses \`make_classification\` to create a synthetic dataset.
+2. **Data Splitting**: Splits the data into training and testing sets.
+
+\`\`\`c++
+async function handleDOMContentLoaded() {
+    
+    const log = console.log
+    const textBox1 = document.getElementById('bot-message1');
+    const textBox2 = document.getElementById('bot-message2');
+    const textBox3 = document.getElementById('bot-message3');
+}
+\`\`\`
 
 
-// // Add event listener for DOMContentLoaded and call the async function
-// document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
+### Explanation:
+1. **Data Generation**: Uses \`make_classification\` to create a synthetic dataset.
+2. **Data Splitting**: Splits the data into training and testing sets.
+3. **Data Standardization**: Standardizes the features to have zero mean and unit variance.
+4. **Model Creation**: Creates an instance of \`MLPClassifier\` with specified hyperparameters.
+5. **Model Training**: Fits the MLP model to the training data.
+6. **Prediction and Evaluation**: Predicts the labels for the test data and evaluates the performance using accuracy and classification report.
+
+You can customize the parameters of the \`MLPClassifier\` to suit your specific needs. The function returns the trained MLP model for further use or evaluation.
+
+`.trim()
+
+const textTicksGibberish = `
+The \`MLPClassifier\` from the \`scikit-learn\` library.
+\`\`\`c#
+import numpy as np
+from sklearn.datasets import make_classification
+
+def train_mlp(hidden_layer_sizes=(100,), activation='relu', solver='adam', alpha=0.0001, batch_size='auto', learning_rate='constant', learning_rate_init=0.001, max_iter=200):
+    
+    # Split the dataset into training and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Standardize the features
+    scaler = StandardScaler()
+    
+    # Print the results
+    print(f'Accuracy: {accuracy}')
+    
+    return mlp
+
+# Example usage
+trained_mlp = train_mlp()
+\`\`\`
+
+1. **Data Generation**: Uses \`make_classification\` to create a synthetic dataset.
+2. **Data Splitting**: Splits the data into training and testing sets.
+
+\`\`\`matlab
+async function handleDOMContentLoaded() {
+    
+    const log = console.log
+    const textBox1 = document.getElementById('bot-message1');
+    const textBox2 = document.getElementById('bot-message2');
+    const textBox3 = document.getElementById('bot-message3');
+}
+\`\`\`
+
+
+### Explanation:
+1. **Data Generation**: Uses \`make_classification\` to create a synthetic dataset.
+2. **Data Splitting**: Splits the data into training and testing sets.
+3. **Data Standardization**: Standardizes the features to have zero mean and unit variance.
+4. **Model Creation**: Creates an instance of \`MLPClassifier\` with specified hyperparameters.
+5. **Model Training**: Fits the MLP model to the training data.
+6. **Prediction and Evaluation**: Predicts the labels for the test data and evaluates the performance using accuracy and classification report.
+
+You can customize the parameters of the \`MLPClassifier\` to suit your specific needs. The function returns the trained MLP model for further use or evaluation.
+
+`.trim()
+
+const textPoetry1 = `
+\`\`\`
+You are my everything
+You are my love
+\`\`\`
+`
+
+const textPoetry2 = `
+Here's the poetry
+\`\`\`
+You are my everything
+You are my love
+\`\`\`
+`
+
+const textRunaway = `
+\`\`\`python
+print(hello)
+`
+
+
+async function handleDOMContentLoaded() {
+
+    const log = console.log
+    const textBox1 = document.getElementById('bot-message1');
+    const textBox2 = document.getElementById('bot-message2');
+    const textBox3 = document.getElementById('bot-message3');
+    mdToHTML(textPoetry1, textBox1)
+    log('*'.repeat(50))
+    log('*'.repeat(50))
+    mdToHTML(textPoetry2, textBox2)
+    log('*'.repeat(50))
+    log('*'.repeat(50))
+    
+    mdToHTML(textRunaway, textBox3)
+    log('*'.repeat(50))
+    log('*'.repeat(50))
+    
+    // let htmlWrapped = mdWrapped.render(textJsPyth);
+    // textBox1.innerHTML = htmlWrapped
+    // htmlWrapped = mdWrapped.render(textTicks);
+    // textBox2.innerHTML = htmlWrapped
+    // htmlWrapped = mdWrapped.render(textTicksGibberish);
+    // textBox3.innerHTML = htmlWrapped
+
+    // const js_text = `
+    // const textBox1 = document.getElementById('bot-message1');
+    // const textBox2 = document.getElementById('bot-message2');
+    // const textBox3 = document.getElementById('bot-message3');
+
+    // console.log("Hello world")
+    // `.trim()
+    // const htmlH = hljs.highlight(js_text, {language:'javascript'})
+    // // const domPure = DOMPurify.sanitize(htmlHighlight);
+    // log('htmlH')
+    // log(htmlH)
+    // log('*'.repeat(30))
+    // const codeContainer = putInCodeContainer(htmlH.value, js_text, 'javascript')
+    // textBox3.appendChild(codeContainer)
+
+};
+
+
+// Add event listener for DOMContentLoaded and call the async function
+document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
