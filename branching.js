@@ -2,8 +2,8 @@ import markdownIt from 'https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/+esm'
 import { getResponseServer } from "./apiModule.js";
 import { mdToHTML } from './md.js';
 
+const apiUrlGPT = 'https://jschatapi.onrender.com/api/gpt/completions/stream' 
 // const apiUrlGPT = 'http://localhost:4000/api/gpt/completions/stream' 
-const apiUrlGPT = 'http://localhost:4000/api/gpt/completions/stream' 
 const decoder = new TextDecoder();
 let bot_default_message = `To ensure that messages in the chat interface wrap and display as multiline when the text is too long to fit in one line, you need to update the CSS to allow for word wrapping and handling overflow appropriately.
  
@@ -36,14 +36,7 @@ const md = markdownIt({
 
 async function handleDOMContentLoaded() {
     const gpt = true;
-    let messages = [
-        { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: 'Yo'},
-                        ]
-    console.log(messages)
-    const messagesJson = JSON.stringify(messages)
-    console.log(messagesJson)
-
+    const max_tokens = 2000;
     // test different prompts:
     const systemMessageFull = `You are a helpful assistant. You respond to my questions with brief, to the point, and useful responses.`;
     
@@ -226,7 +219,7 @@ async function handleDOMContentLoaded() {
                     method: 'POST',
                     body: JSON.stringify({
                         messages: pretext,
-                        max_tokens: 100,
+                        max_tokens: max_tokens,
                     }), 
                     headers: { 'Content-Type': 'application/json' },   
                 })
