@@ -92,18 +92,36 @@ function parseTextBlocksResilient(text) {
   return blocks;
 };
 
+if( typeof Element.prototype.clearChildren === 'undefined' ) {
+  Object.defineProperty(Element.prototype, 'clearChildren', {
+    configurable: true,
+    enumerable: false,
+    value: function() {
+      while(this.firstChild) this.removeChild(this.lastChild);
+    }
+  });
+}
+
 export function mdToHTML(fileText, botMessage){
+  // remove botMessage children each time's children
+  // botMessage.clearChildren()
+  while (botMessage.firstChild) {
+    botMessage.removeChild(botMessage.lastChild);
+  }
+  // botMessage.replaceChildren()
+  // botMessage.innerHTML = '';
+  console.log('botMessage.children')
+  console.log(botMessage.children)
   // to prevent uncaught errors
   if (!botMessage){
     return
   }
   log('fileText')
   log(fileText)
-  // let blocks = parseTextBlocksResilient(fileText)
+
   // Regular expression to match triple backticks
   const regex = /```/;
-  // log('split')
-  // log('```python'.split('```')[1])
+  
   // Find all occurrences of the triple backticks
   const textNLines = fileText.split('\n')
   let chunks = []
@@ -143,16 +161,13 @@ export function mdToHTML(fileText, botMessage){
 
   console.log('chunks')
   console.log(chunks)
-  // const matches = fileText.match(regex);
-  // let blocks = textNLines
-  // log('blocks')
-  // log(blocks)
-  // log('*'.repeat(50))
-  // let cleans = blocks.map(block => block.language ? putInCodeContainer(hljs.highlight(block.text, {language:block.language}).value, block.text, block.language) : md.render(block.text))    
-  let cleans = []
+
+  // let cleans = []
   let output
   let temp
   for (const item of chunks){
+    // console.log('item')
+    // console.log(item)
     if (item.language==='quote'){
       item.text = item.text.split('\n').map(line => '> ' + line).join('\n')
       temp = md.render(item.text)
@@ -174,10 +189,25 @@ export function mdToHTML(fileText, botMessage){
       }
     }
 
-    cleans.push(output)
+    // cleans.push(output)
+    // console.log(botMessage.oldOutput)
+    // console.log('botMessage.oldOutput')
+    // console.log('output')
+    // console.log(output)
+    // console.log('botMessage.children')
+    console.log(botMessage.children)
+    
+    // if (botMessage.oldOutput!==undefined){
+    //   botMessage.replaceChild(output, botMessage.oldOutput)
+    // } else {
+    //   botMessage.appendChild(output)
+    // }
+    // botMessage.oldOutput = output
     botMessage.appendChild(output)
   
+  
   };
+  // return botMessage
 };
 
 

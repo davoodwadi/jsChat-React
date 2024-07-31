@@ -2,6 +2,9 @@ import markdownIt from 'https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/+esm'
 import { getResponseServer } from "./apiModule.js";
 import { mdToHTML } from './md.js';
 
+// const apiUrlGPT = 'http://localhost:4000/api/gpt/completions/stream' 
+const apiUrlGPT = 'http://localhost:4000/api/gpt/completions/stream' 
+const decoder = new TextDecoder();
 let bot_default_message = `To ensure that messages in the chat interface wrap and display as multiline when the text is too long to fit in one line, you need to update the CSS to allow for word wrapping and handling overflow appropriately.
  
 Here’s how you can adjust the CSS to ensure that messages are displayed in multiple lines within the chat interface: `
@@ -32,6 +35,7 @@ const md = markdownIt({
 
 
 async function handleDOMContentLoaded() {
+    const gpt = true;
     let messages = [
         { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: 'Yo'},
@@ -39,136 +43,13 @@ async function handleDOMContentLoaded() {
     console.log(messages)
     const messagesJson = JSON.stringify(messages)
     console.log(messagesJson)
-    const messagesRestored = messagesJson.json()
-    console.log(messagesRestored)
 
     // test different prompts:
-    const systemMessageFull = `You are a helpful assistant. You respond to my questions with brief, to the point, and useful responses`;
-    const userText = `mamba install -c plotly plotly=5.23.0
-
-                  __    __    __    __
-                 /  \  /  \  /  \  /  \
-                /    \/    \/    \/    \
-███████████████/  /██/  /██/  /██/  /████████████████████████
-              /  / \   / \   / \   / \  \____
-             /  /   \_/   \_/   \_/   \    o \__,
-            / _/                       \_____/  
-            |/
-        ███╗   ███╗ █████╗ ███╗   ███╗██████╗  █████╗
-        ████╗ ████║██╔══██╗████╗ ████║██╔══██╗██╔══██╗
-        ██╔████╔██║███████║██╔████╔██║██████╔╝███████║
-        ██║╚██╔╝██║██╔══██║██║╚██╔╝██║██╔══██╗██╔══██║
-        ██║ ╚═╝ ██║██║  ██║██║ ╚═╝ ██║██████╔╝██║  ██║
-        ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚═════╝ ╚═╝  ╚═╝
-
-        mamba (1.4.2) supported by @QuantStack
-
-        GitHub:  https://github.com/mamba-org/mamba
-        Twitter: https://twitter.com/QuantStack
-
-█████████████████████████████████████████████████████████████
-
-
-Looking for: ['plotly=5.23.0']
-
-conda-forge/osx-64                                          Using cache
-conda-forge/noarch                                          Using cache
-plotly/osx-64                                                 No change
-plotly/noarch                                                 No change
-
-Pinned packages:
-  - python 3.10.*
-
-
-Transaction
-
-  Prefix: /Users/davoodwadi/mambaforge
-
-  Updating specs:
-
-   - plotly=5.23.0
-   - ca-certificates
-   - openssl
-
-
-  Package              Version  Build         Channel                  Size
-─────────────────────────────────────────────────────────────────────────────
-  Install:
-─────────────────────────────────────────────────────────────────────────────
-
-  + plotly              5.23.0  py_0          plotly/noarch          Cached
-  + tenacity             9.0.0  pyhd8ed1ab_0  conda-forge/noarch     Cached
-
-  Upgrade:
-─────────────────────────────────────────────────────────────────────────────
-
-  - ca-certificates  2023.7.22  h8857fd0_0    conda-forge                  
-  + ca-certificates   2024.7.4  h8857fd0_0    conda-forge/osx-64     Cached
-  - openssl              3.1.2  h8a1eda9_0    conda-forge                  
-  + openssl              3.3.1  h87427d6_2    conda-forge/osx-64     Cached
-
-  Summary:
-
-  Install: 2 packages
-  Upgrade: 2 packages
-
-  Total download: 0 B
-
-─────────────────────────────────────────────────────────────────────────────
-
-
-Confirm changes: [Y/n] y
-
-Downloading and Extracting Packages
-
-Preparing transaction: done
-Verifying transaction: failed
-'packaging' is a dependency of conda and cannot be removed from
-conda's operating environment.
-'toolz' is a dependency of conda and cannot be removed from
-conda's operating environment.
-'tqdm' is a dependency of conda and cannot be removed from
-conda's operating environment.
-
-
-RemoveError: 'packaging' is a dependency of conda and cannot be removed from
-conda's operating environment.
-RemoveError: 'toolz' is a dependency of conda and cannot be removed from
-conda's operating environment.
-RemoveError: 'tqdm' is a dependency of conda and cannot be removed from
-conda's operating environment.`
-    // console.log('getting test responses.')
-    // let resp
-    // let pretext = systemTemplate.replace('{text}', systemMessageFull) + userTemplateNoTicks.replace('{text}', userText)
-    
-    // resp = await getResponseServer(pretext)
-    // console.log('full system:')
-    // console.log(resp)
-    // console.log('*'.repeat(50))
-
-    // pretext = systemTemplate.replace('{text}', '') + userTemplateNoTicks.replace('{text}', userText)
-    
-    // resp = await getResponseServer(pretext)
-    // console.log('empty system with tags')
-    // console.log(resp)
-    // console.log('*'.repeat(50))
-
-    // pretext = '' + userTemplateWithTicks.replace('{text}', userText)
-    // resp = await getResponseServer(pretext)
-    // console.log('empty system no tags')
-    // console.log(resp)
-    // console.log('*'.repeat(50))
-    
-    // pretext = '' + userTemplateNoTicks.replace('{text}', userText)
-    // resp = await getResponseServer(pretext)
-    // console.log('empty system no tags no ticks')
-    // console.log(resp)
-    // console.log('*'.repeat(50))
+    const systemMessageFull = `You are a helpful assistant. You respond to my questions with brief, to the point, and useful responses.`;
     
 
     let messageElement = document.getElementById('first-message')
     let container = messageElement.parentElement;
-    // console.log(messageElement.textContent)
 
     const dots = createDots();
     
@@ -207,10 +88,6 @@ conda's operating environment.`
         let branch = target.parentElement
         let branchContainer = branch.parentElement
         let elementToFocus
-        // console.log('first')
-        // console.log(first)
-        // console.log(branch.classList.contains('branch'))
-        // console.log(branchContainer.classList.contains('branch-container'))
         
         console.log(`oldContent: ${target.oldContent}`)
         const oldContent = target.oldContent
@@ -241,19 +118,22 @@ conda's operating environment.`
 
             // get llm messages
             const elementArray = createElementArray(messageElement)
-            // console.log(elementArray)
-            let messages = createMessageChain(elementArray)
-            messages += assistantTag
-            console.log(messages)
-
-            // add bot and empty user 
-            messageElement = await createMessageElement('bot', messages);
-            branch.replaceChild(messageElement, dots)
-            // branch.appendChild(messageElement);
-
-            // // set the old content
-            // console.log(`setting target's content to ${oldContent}`)
-            // target.textContent = oldContent
+            
+            if (gpt){
+                let messages = createMessageChainGPT(elementArray)
+                console.log(JSON.stringify(messages))
+                messageElement = await createMessageElement('bot', messages, branch);
+                
+            } else {
+                let messages = createMessageChain(elementArray)
+                messages += assistantTag
+                console.log(messages)
+    
+                // add bot and empty user 
+                messageElement = await createMessageElement('bot', messages);
+                branch.replaceChild(messageElement, dots)
+            }
+            
             
             // create branch-container within branch.        
             let newBranchContainer = document.createElement('div');
@@ -278,16 +158,25 @@ conda's operating environment.`
             // branch.appendChild(target)
             // add dots to the branch
             branch.appendChild(dots)
+            
             // get llm messages
             const elementArray = createElementArray(target)
-            // console.log(elementArray)
-            let messages = createMessageChain(elementArray)
-            messages += assistantTag
-            console.log(messages)
-
-            // add bot message and followup user message
-            messageElement = await createMessageElement('bot', messages);
-            branch.replaceChild(messageElement, dots)
+            
+            if (gpt){
+                let messages = createMessageChainGPT(elementArray)
+                console.log(JSON.stringify(messages))
+                messageElement = await createMessageElement('bot', messages, branch);
+                
+            } else {
+                let messages = createMessageChain(elementArray)
+                messages += assistantTag
+                console.log(messages)
+    
+                // add bot message and followup user message
+                messageElement = await createMessageElement('bot');
+                branch.replaceChild(messageElement, dots)
+            }
+            
             // set element to focus to
             elementToFocus = messageElement;
 
@@ -325,15 +214,47 @@ conda's operating environment.`
         return false
     }
 
-    async function createMessageElement(role, pretext){
+    async function createMessageElement(role, pretext, branch){
         let messageElement = document.createElement('div');
         if (role==='bot'){
             messageElement.classList.add('editable', 'message', role);
             messageElement.contentEditable = true;
             // messageElement.textContent = pretext + '\n\n' + (await getDummyMessage())
-            const llmResponse = await getResponseServer(pretext)
-            log(llmResponse)
-            mdToHTML(llmResponse, messageElement);
+            if (gpt){
+                let textDecoded = ''
+                const res = await fetch(apiUrlGPT, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        messages: pretext,
+                        max_tokens: 100,
+                    }), 
+                    headers: { 'Content-Type': 'application/json' },   
+                })
+                
+                messageElement.textContent = ''
+                
+                messageElement.oldOutput = undefined
+                messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
+                messageElement.text = ''
+                for await (const chunk of res.body) {
+                    // replace dots
+                    if (branch.contains(dots)){
+                        branch.replaceChild(messageElement, dots)
+                    }    
+                    textDecoded = decoder.decode(chunk)
+        
+                    messageElement.text = messageElement.text + textDecoded;
+
+                    mdToHTML(messageElement.text, messageElement);
+                    messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
+                }
+
+            } else {
+                const llmResponse = await getResponseServer(pretext)
+                log(llmResponse)
+                mdToHTML(llmResponse, messageElement);
+            }
+            
             // parse llmResponse from md to html 
             // const html = md.render(llmResponse);
             // const cleanHTML = DOMPurify.sanitize(html);
@@ -431,7 +352,27 @@ conda's operating environment.`
     // console.log(element.children)
 
     // create message from chain elements 
-
+    function createMessageChainGPT(messageElementArray){
+        // let chainMessages = systemPrompt
+        let chainMessages = [{
+            role:'system', content:systemMessageFull
+        }]
+        for (let el of messageElementArray){
+            if (el.classList.contains('user')){
+                chainMessages.push({
+                    role : 'user', 
+                    content : el.textContent
+                })
+                
+            } else {
+                chainMessages.push({
+                    role : 'assistant',
+                    content : el.textContent
+                })
+            
+        }}
+        return chainMessages
+    }
     function createMessageChain(messageElementArray){
         // let chainMessages = systemPrompt
         let chainMessages = ''

@@ -27,19 +27,28 @@ app.get("/", (req, res) => res.type('html').send(html));
 
 
 // openai endpoint
-app.post('/api/gpt/completions', async (req, res) => {
+app.post('/api/gpt/completions/stream', async (req, res) => {
   try {
-    console.log(req.body)
-    res.json('Working!!!!')
-    // const chatCompletion = await openai.chat.completions.create({
-    //   messages: [{ role: "user", content: req.body }],
-    //   model: "gpt-4o-mini",
-    // });
-    // res.json(chatCompletion)
-    // console.log(chatCompletion)
+    // req.body is the post from client
+    const stream = openai.beta.chat.completions.stream({
+      model: "gpt-4o-mini",
+      messages: req.body.messages,
+      max_tokens: req.body.max_tokens,
+      stream: true,
+    });
+    
+    res.header('Content-Type', 'text/plain');
+    // Sends each content stream chunk-by-chunk, such that the client
+    // ultimately receives a single string.
+    for await (const chunk of stream) {
+      res.write(chunk.choices[0]?.delta.content || '');
+    }
+
+    res.end();
+
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ error: error });
+    res.status(500).json({ error: 'error faced in fetching openai' });
   }
 });
 
@@ -59,8 +68,8 @@ app.post('/api/hf/8b/completions', async (req, res) => {
         // console.log(options)
         let response = await fetch(hfUrl8b, options)
         response = await response.json()
-        console.log('response')
-        console.log(response)
+        // console.log('response')
+        // console.log(response)
         res.json(response)
 
     } catch (error) {
