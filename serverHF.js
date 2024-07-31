@@ -14,16 +14,20 @@ app.use(express.json());
 // const openai = new OpenAI();
 
 const myVariable = process.env.HF_TOKEN;
+console.log(myVariable)
 // HF-api endpoint
-const hfUrl =  "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
+const hfUrl8b =  "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
+const hfUrl70b =  "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-70B-Instruct";
+const hfUrl405b =  "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3.1-405B-Instruct";
+
 // Endpoint to handle API requests
 app.get("/", (req, res) => res.type('html').send(html));
 
-app.post('/api/hf/completions', async (req, res) => {
+app.post('/api/hf/8b/completions', async (req, res) => {
     try {
         // const { inputs, parameters } = req.body;
-        console.log('req.body');
-        console.log(req.body);
+        // console.log('req.body');
+        // console.log(req.body);
 
         const options = {
             method: 'POST',
@@ -33,9 +37,9 @@ app.post('/api/hf/completions', async (req, res) => {
             },
             body: JSON.stringify(req.body)
         };
-        console.log('options')
-        console.log(options)
-        let response = await fetch(hfUrl, options)
+        // console.log('options')
+        // console.log(options)
+        let response = await fetch(hfUrl8b, options)
         response = await response.json()
         console.log('response')
         console.log(response)
@@ -45,6 +49,34 @@ app.post('/api/hf/completions', async (req, res) => {
         console.error('Error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
+});
+
+app.post('/api/hf/70b/completions', async (req, res) => {
+  try {
+      // const { inputs, parameters } = req.body;
+      // console.log('req.body');
+      // console.log(req.body);
+
+      const options = {
+          method: 'POST',
+          headers: {
+              Authorization: `Bearer ${myVariable}`,
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(req.body)
+      };
+      // console.log('options')
+      // console.log(options)
+      let response = await fetch(hfUrl70b, options)
+      response = await response.json()
+      console.log('response')
+      console.log(response)
+      res.json(response)
+
+  } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 app.get('/api/hf/completions', async (req, res) => {

@@ -9,7 +9,8 @@ const systemTemplate = `<|start_header_id|>system<|end_header_id|>\n{text}<|eot_
 // const systemMessage = `You are a helpful assistant. You respond to my questions with brief, to the point, and useful responses. My questions are in triple backtics`;
 const systemMessage = ""
 const systemPrompt = systemTemplate.replace('{text}', systemMessage);
-const userTemplate = `<|start_header_id|>user<|end_header_id|>\n\`\`\`{text}\`\`\`<|eot_id|>\n\n`;
+const userTemplateWithTicks = `<|start_header_id|>user<|end_header_id|>\n\`\`\`{text}\`\`\`<|eot_id|>\n\n`;
+const userTemplateNoTicks = `<|start_header_id|>user<|end_header_id|>\n{text}<|eot_id|>\n\n`;
 const assistantTag = `<|start_header_id|>assistant<|end_header_id|>\n`
 const assistantEOT = `<|eot_id|>\n\n`
 const assistantPrompt = `${assistantTag}{text}${assistantEOT}`
@@ -31,7 +32,140 @@ const md = markdownIt({
 
 
 async function handleDOMContentLoaded() {
+    let messages = [
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: 'Yo'},
+                        ]
+    console.log(messages)
+    const messagesJson = JSON.stringify(messages)
+    console.log(messagesJson)
+    const messagesRestored = messagesJson.json()
+    console.log(messagesRestored)
+
+    // test different prompts:
+    const systemMessageFull = `You are a helpful assistant. You respond to my questions with brief, to the point, and useful responses`;
+    const userText = `mamba install -c plotly plotly=5.23.0
+
+                  __    __    __    __
+                 /  \  /  \  /  \  /  \
+                /    \/    \/    \/    \
+███████████████/  /██/  /██/  /██/  /████████████████████████
+              /  / \   / \   / \   / \  \____
+             /  /   \_/   \_/   \_/   \    o \__,
+            / _/                       \_____/  
+            |/
+        ███╗   ███╗ █████╗ ███╗   ███╗██████╗  █████╗
+        ████╗ ████║██╔══██╗████╗ ████║██╔══██╗██╔══██╗
+        ██╔████╔██║███████║██╔████╔██║██████╔╝███████║
+        ██║╚██╔╝██║██╔══██║██║╚██╔╝██║██╔══██╗██╔══██║
+        ██║ ╚═╝ ██║██║  ██║██║ ╚═╝ ██║██████╔╝██║  ██║
+        ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚═════╝ ╚═╝  ╚═╝
+
+        mamba (1.4.2) supported by @QuantStack
+
+        GitHub:  https://github.com/mamba-org/mamba
+        Twitter: https://twitter.com/QuantStack
+
+█████████████████████████████████████████████████████████████
+
+
+Looking for: ['plotly=5.23.0']
+
+conda-forge/osx-64                                          Using cache
+conda-forge/noarch                                          Using cache
+plotly/osx-64                                                 No change
+plotly/noarch                                                 No change
+
+Pinned packages:
+  - python 3.10.*
+
+
+Transaction
+
+  Prefix: /Users/davoodwadi/mambaforge
+
+  Updating specs:
+
+   - plotly=5.23.0
+   - ca-certificates
+   - openssl
+
+
+  Package              Version  Build         Channel                  Size
+─────────────────────────────────────────────────────────────────────────────
+  Install:
+─────────────────────────────────────────────────────────────────────────────
+
+  + plotly              5.23.0  py_0          plotly/noarch          Cached
+  + tenacity             9.0.0  pyhd8ed1ab_0  conda-forge/noarch     Cached
+
+  Upgrade:
+─────────────────────────────────────────────────────────────────────────────
+
+  - ca-certificates  2023.7.22  h8857fd0_0    conda-forge                  
+  + ca-certificates   2024.7.4  h8857fd0_0    conda-forge/osx-64     Cached
+  - openssl              3.1.2  h8a1eda9_0    conda-forge                  
+  + openssl              3.3.1  h87427d6_2    conda-forge/osx-64     Cached
+
+  Summary:
+
+  Install: 2 packages
+  Upgrade: 2 packages
+
+  Total download: 0 B
+
+─────────────────────────────────────────────────────────────────────────────
+
+
+Confirm changes: [Y/n] y
+
+Downloading and Extracting Packages
+
+Preparing transaction: done
+Verifying transaction: failed
+'packaging' is a dependency of conda and cannot be removed from
+conda's operating environment.
+'toolz' is a dependency of conda and cannot be removed from
+conda's operating environment.
+'tqdm' is a dependency of conda and cannot be removed from
+conda's operating environment.
+
+
+RemoveError: 'packaging' is a dependency of conda and cannot be removed from
+conda's operating environment.
+RemoveError: 'toolz' is a dependency of conda and cannot be removed from
+conda's operating environment.
+RemoveError: 'tqdm' is a dependency of conda and cannot be removed from
+conda's operating environment.`
+    // console.log('getting test responses.')
+    // let resp
+    // let pretext = systemTemplate.replace('{text}', systemMessageFull) + userTemplateNoTicks.replace('{text}', userText)
     
+    // resp = await getResponseServer(pretext)
+    // console.log('full system:')
+    // console.log(resp)
+    // console.log('*'.repeat(50))
+
+    // pretext = systemTemplate.replace('{text}', '') + userTemplateNoTicks.replace('{text}', userText)
+    
+    // resp = await getResponseServer(pretext)
+    // console.log('empty system with tags')
+    // console.log(resp)
+    // console.log('*'.repeat(50))
+
+    // pretext = '' + userTemplateWithTicks.replace('{text}', userText)
+    // resp = await getResponseServer(pretext)
+    // console.log('empty system no tags')
+    // console.log(resp)
+    // console.log('*'.repeat(50))
+    
+    // pretext = '' + userTemplateNoTicks.replace('{text}', userText)
+    // resp = await getResponseServer(pretext)
+    // console.log('empty system no tags no ticks')
+    // console.log(resp)
+    // console.log('*'.repeat(50))
+    
+
     let messageElement = document.getElementById('first-message')
     let container = messageElement.parentElement;
     // console.log(messageElement.textContent)
@@ -53,9 +187,9 @@ async function handleDOMContentLoaded() {
     //      branch
     //          user
     //          bot        
-    // event listener for first-message
+    // event listener for first-message  
     messageElement.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' &&!event.shiftKey) {
             event.preventDefault(); // Prevent the default behavior of adding a new line
             // add branch-container if it doesn't have it
             // add branch
@@ -200,7 +334,7 @@ async function handleDOMContentLoaded() {
             const llmResponse = await getResponseServer(pretext)
             log(llmResponse)
             mdToHTML(llmResponse, messageElement);
-            // parse llmResponse from md to html
+            // parse llmResponse from md to html 
             // const html = md.render(llmResponse);
             // const cleanHTML = DOMPurify.sanitize(html);
             // log(cleanHTML)
@@ -299,11 +433,12 @@ async function handleDOMContentLoaded() {
     // create message from chain elements 
 
     function createMessageChain(messageElementArray){
-        let chainMessages = systemPrompt
+        // let chainMessages = systemPrompt
+        let chainMessages = ''
         for (let el of messageElementArray){
             if (el.classList.contains('user')){
                 // console.log(`user: ${el.textContent}`);
-                chainMessages += userTemplate.replace('{text}', el.textContent);
+                chainMessages += userTemplateNoTicks.replace('{text}', el.textContent);
             } else {
                 // console.log(`bot: ${el.textContent}`);
                 chainMessages += assistantPrompt.replace('{text}', el.textContent);

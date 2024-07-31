@@ -362,19 +362,19 @@ print(hello)
 async function handleDOMContentLoaded() {
 
     const log = console.log
-    const textBox1 = document.getElementById('bot-message1');
-    const textBox2 = document.getElementById('bot-message2');
-    const textBox3 = document.getElementById('bot-message3');
-    mdToHTML(textPoetry1, textBox1)
-    log('*'.repeat(50))
-    log('*'.repeat(50))
-    mdToHTML(textPoetry2, textBox2)
-    log('*'.repeat(50))
-    log('*'.repeat(50))
+    // const textBox1 = document.getElementById('bot-message1');
+    // const textBox2 = document.getElementById('bot-message2');
+    // const textBox3 = document.getElementById('bot-message3');
+    // mdToHTML(textPoetry1, textBox1)
+    // log('*'.repeat(50))
+    // log('*'.repeat(50))
+    // mdToHTML(textPoetry2, textBox2)
+    // log('*'.repeat(50))
+    // log('*'.repeat(50))
     
-    mdToHTML(textRunaway, textBox3)
-    log('*'.repeat(50))
-    log('*'.repeat(50))
+    // mdToHTML(textRunaway, textBox3)
+    // log('*'.repeat(50))
+    // log('*'.repeat(50))
     
     // let htmlWrapped = mdWrapped.render(textJsPyth);
     // textBox1.innerHTML = htmlWrapped

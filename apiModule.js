@@ -30,17 +30,18 @@
 // `.trim();
 
 // const apiUrl = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
-// const apiUrl = 'http://localhost:4000/api/hf/completions'; // API endpoint on your server
+const apiUrlHF8b = 'http://localhost:4000/api/hf/8b/completions'; // API endpoint on your server
 // const apiUrl = 'http://192.168.1.44:4000/api/hf/completions'; // API endpoint on your server
-const apiUrl = 'https://jschatapi.onrender.com/api/hf/completions'
+// const apiUrl = 'https://jschatapi.onrender.com/api/hf/completions'
 // const apiUrl = 'https://pathology-tires-references-gerald.trycloudflare.com/api/hf/completions'
-console.log(apiUrl);
 
 
 export async function getResponseServer(text){
+    console.log(apiUrlHF8b);
     try {
+        
         const response = await fetch(
-            apiUrl,
+            apiUrlHF8b,
             {
                 method: "POST",
                 headers: { 
@@ -50,7 +51,7 @@ export async function getResponseServer(text){
                     inputs: text,
         
                     parameters: {
-                        // temperature: 0.1,
+                        // temperature: 0.0001,
                         max_new_tokens: 1000,
                         return_full_text: false,
                     }
@@ -59,7 +60,7 @@ export async function getResponseServer(text){
             }
         );
         const result = await response.json();
-
+        console.log(result)
         return result[0]['generated_text'];
     }
     catch (error){
