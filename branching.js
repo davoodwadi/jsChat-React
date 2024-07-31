@@ -6,7 +6,8 @@ let bot_default_message = `To ensure that messages in the chat interface wrap an
  
 Here’s how you can adjust the CSS to ensure that messages are displayed in multiple lines within the chat interface: `
 const systemTemplate = `<|start_header_id|>system<|end_header_id|>\n{text}<|eot_id|>\n\n`;
-const systemMessage = `You are a helpful assistant. You respond with brief, to the point, and useful responses. You should always output your responses in MarkDown.`;
+// const systemMessage = `You are a helpful assistant. You respond to my questions with brief, to the point, and useful responses. My questions are in triple backtics`;
+const systemMessage = ""
 const systemPrompt = systemTemplate.replace('{text}', systemMessage);
 const userTemplate = `<|start_header_id|>user<|end_header_id|>\n\`\`\`{text}\`\`\`<|eot_id|>\n\n`;
 const assistantTag = `<|start_header_id|>assistant<|end_header_id|>\n`
