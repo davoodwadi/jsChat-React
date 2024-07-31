@@ -1,9 +1,12 @@
 // server.js
 import express from 'express';
 import cors from 'cors';
-// import { OpenAI } from 'openai';
+import { OpenAI } from 'openai';
 
 import fetch from 'node-fetch';
+
+const openaiToken = process.env.openaiintelChainKey;
+const hfToken = process.env.HF_TOKEN;
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -11,10 +14,9 @@ const port = process.env.PORT || 4000;
 app.use(cors());
 // Middleware to parse JSON bodies
 app.use(express.json());
-// const openai = new OpenAI();
+const openai = new OpenAI({apiKey: openaiToken});
 
-const myVariable = process.env.HF_TOKEN;
-console.log(myVariable)
+
 // HF-api endpoint
 const hfUrl8b =  "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
 const hfUrl70b =  "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-70B-Instruct";
@@ -23,16 +25,32 @@ const hfUrl405b =  "https://api-inference.huggingface.co/models/meta-llama/Meta-
 // Endpoint to handle API requests
 app.get("/", (req, res) => res.type('html').send(html));
 
+
+// openai endpoint
+app.post('/api/gpt/completions', async (req, res) => {
+  try {
+    console.log(req.body)
+    res.json('Working!!!!')
+    // const chatCompletion = await openai.chat.completions.create({
+    //   messages: [{ role: "user", content: req.body }],
+    //   model: "gpt-4o-mini",
+    // });
+    // res.json(chatCompletion)
+    // console.log(chatCompletion)
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: error });
+  }
+});
+
+
 app.post('/api/hf/8b/completions', async (req, res) => {
     try {
-        // const { inputs, parameters } = req.body;
-        // console.log('req.body');
-        // console.log(req.body);
 
         const options = {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${myVariable}`,
+                Authorization: `Bearer ${hfToken}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(req.body)
@@ -47,7 +65,7 @@ app.post('/api/hf/8b/completions', async (req, res) => {
 
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: error });
     }
 });
 
@@ -60,7 +78,7 @@ app.post('/api/hf/70b/completions', async (req, res) => {
       const options = {
           method: 'POST',
           headers: {
-              Authorization: `Bearer ${myVariable}`,
+              Authorization: `Bearer ${hfToken}`,
               'Content-Type': 'application/json'
           },
           body: JSON.stringify(req.body)
@@ -93,6 +111,10 @@ app.get('/api/hf/completions', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+
+
+
 
 const html = `
 <!DOCTYPE html>
