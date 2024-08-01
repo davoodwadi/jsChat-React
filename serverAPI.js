@@ -30,7 +30,8 @@ app.post('/api/gpt/completions/stream', async (req, res) => {
   try {
     // touching
     const ipAddress = req.headers['touch'] || req.socket.remoteAddress;
-
+    console.log('ipAddress')
+    console.log(ipAddress)
     if (ipAddress === 'yes') {
       return res.status(200).send('touch success');
     }
