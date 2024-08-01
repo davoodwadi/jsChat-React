@@ -51,6 +51,15 @@ app.post('/api/gpt/completions/stream', async (req, res) => {
   }
 });
 
+// Adding a HEAD method for the touch
+app.head('/api/gpt/completions/stream', (req, res) => {
+  // You can send back headers as needed
+  console.log('HEAD request received');
+  res.set('X-Last-Checked', new Date().toUTCString());  // Example header
+  res.sendStatus(200); // Responds with 200 OK
+});
+
+
 
 app.get('/api/gpt/completions/stream', async (req, res) => {
   try {
