@@ -82,12 +82,12 @@ async function handleDOMContentLoaded() {
         let branchContainer = branch.parentElement
         let elementToFocus
         
-        console.log(`oldContent: ${target.oldContent}`)
+        // console.log(`oldContent: ${target.oldContent}`)
         const oldContent = target.oldContent
-        console.log(`triggeredBefore ${target.triggeredBefore}`)
+        // console.log(`triggeredBefore ${target.triggeredBefore}`)
 
         if ((target.triggeredBefore) && target.role==='user'){//old and user
-            console.log('old box')
+            // console.log('old box')
             // add new branch
             branch = document.createElement('div')
             branch.classList.add('branch')
@@ -142,7 +142,7 @@ async function handleDOMContentLoaded() {
 
             
         } else if ( target.role==='user') { // latest and user
-            console.log('fresh text')
+            // console.log('fresh text')
             // add branch
             // branch = document.createElement('div')
             // branch.classList.add('branch')
@@ -215,6 +215,7 @@ async function handleDOMContentLoaded() {
             // messageElement.textContent = pretext + '\n\n' + (await getDummyMessage())
             if (gpt){
                 let textDecoded = '' 
+                console.log(`await fetch(apiUrlGPT`)
                 const res = await fetch(apiUrlGPT, {
                     method: 'POST',
                     body: JSON.stringify({
@@ -229,6 +230,7 @@ async function handleDOMContentLoaded() {
                 messageElement.oldOutput = undefined
                 messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
                 messageElement.text = ''
+                console.log('got stream response => reading it chunk by chunk.')
                 for await (const chunk of res.body) {
                     // replace dots
                     if (branch.contains(dots)){
