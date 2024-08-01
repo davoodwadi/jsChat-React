@@ -37,6 +37,8 @@ const md = markdownIt({
 async function handleDOMContentLoaded() {
     const gpt = true;
     const max_tokens = 2000;
+    const myVar = process.env.HF_TOKEN
+    console.log(myVar)
     // test different prompts:
     const systemMessageFull = `You are a helpful assistant. You respond to my questions with brief, to the point, and useful responses.`;
     
@@ -214,7 +216,7 @@ async function handleDOMContentLoaded() {
             messageElement.contentEditable = true;
             // messageElement.textContent = pretext + '\n\n' + (await getDummyMessage())
             if (gpt){
-                let textDecoded = ''
+                let textDecoded = '' 
                 const res = await fetch(apiUrlGPT, {
                     method: 'POST',
                     body: JSON.stringify({
@@ -263,7 +265,7 @@ async function handleDOMContentLoaded() {
             messageElement.setAttribute('data-placeholder', 'New message')
             // event listener
             messageElement.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter') {
+                if (event.key === 'Enter' &&!event.shiftKey) {
                     event.preventDefault(); // Prevent the default behavior of adding a new line
                     // add branch-container if it doesn't have it
                     // add branch
