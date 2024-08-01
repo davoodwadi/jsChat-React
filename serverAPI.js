@@ -16,7 +16,6 @@ app.use(cors());
 app.use(express.json());
 const openai = new OpenAI({apiKey: openaiToken});
 
-
 // HF-api endpoint
 const hfUrl8b =  "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
 const hfUrl70b =  "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-70B-Instruct";
@@ -49,6 +48,18 @@ app.post('/api/gpt/completions/stream', async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'error faced in fetching openai' });
+  }
+});
+
+
+app.get('/api/gpt/completions/stream', async (req, res) => {
+  try {
+      console.log('node.js server touched')
+      res.json('thank you for touching')
+
+  } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Get Error: Internal Server Error' });
   }
 });
 
@@ -106,6 +117,7 @@ app.post('/api/hf/70b/completions', async (req, res) => {
   }
 });
 
+
 app.get('/api/hf/completions', async (req, res) => {
     try {
         console.log('welcome to node.js')
@@ -116,6 +128,36 @@ app.get('/api/hf/completions', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
+app.post('/api/hf/completions', async (req, res) => {
+  try {
+      // const { inputs, parameters } = req.body;
+      console.log('req.body');
+      console.log(req.body);
+
+      const options = {
+          method: 'POST',
+          headers: {
+              Authorization: `Bearer ${hfToken}`,
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(req.body)
+      };
+      console.log('options')
+      console.log(options)
+      let response = await fetch(hfUrl8b, options)
+      response = await response.json()
+      console.log('response')
+      console.log(response)
+      res.json(response)
+
+  } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
