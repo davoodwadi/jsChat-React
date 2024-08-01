@@ -37,8 +37,6 @@ const md = markdownIt({
 async function handleDOMContentLoaded() {
     const gpt = true;
     const max_tokens = 2000;
-    const myVar = process.env.HF_TOKEN
-    console.log(myVar)
     // test different prompts:
     const systemMessageFull = `You are a helpful assistant. You respond to my questions with brief, to the point, and useful responses.`;
     
@@ -237,7 +235,6 @@ async function handleDOMContentLoaded() {
                         branch.replaceChild(messageElement, dots)
                     }    
                     textDecoded = decoder.decode(chunk)
-        
                     messageElement.text = messageElement.text + textDecoded;
 
                     mdToHTML(messageElement.text, messageElement);
