@@ -28,6 +28,13 @@ app.get("/", (req, res) => res.type('html').send(html));
 // openai endpoint
 app.post('/api/gpt/completions/stream', async (req, res) => {
   try {
+    // touching
+    const ipAddress = req.headers['touch'] || req.socket.remoteAddress;
+
+    if (ipAddress === 'yes') {
+      return res.status(200).send('touch success');
+    }
+
     // req.body is the post from client
     const stream = openai.beta.chat.completions.stream({
       model: "gpt-4o-mini",
