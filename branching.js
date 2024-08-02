@@ -214,7 +214,7 @@ async function handleDOMContentLoaded() {
             messageElement.contentEditable = true;
             // messageElement.textContent = pretext + '\n\n' + (await getDummyMessage())
             if (gpt){
-                let textDecoded = '' 
+                // let textDecoded = '' 
                 console.log(`await fetch(apiUrlGPT`)
                 const res = await fetch(apiUrlGPT, {
                     method: 'POST',
@@ -224,23 +224,47 @@ async function handleDOMContentLoaded() {
                     }), 
                     headers: { 'Content-Type': 'application/json' },   
                 })
+
+                
+                if (!res.ok) {
+                    console.error('API call failed with status:', res.status);
+                    return; // Handle the error accordingly
+                }
+                // console.log('Response type:', res.headers.get('Content-Type'));
+                
+                
                 
                 messageElement.textContent = ''
                 
                 messageElement.oldOutput = undefined
                 messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
                 messageElement.text = ''
+                // console.log(JSON.stringify(res))
                 console.log('got stream response => reading it chunk by chunk.')
-                for await (const chunk of res.body) {
-                    // replace dots
-                    if (branch.contains(dots)){
-                        branch.replaceChild(messageElement, dots)
-                    }    
-                    textDecoded = decoder.decode(chunk)
-                    messageElement.text = messageElement.text + textDecoded;
+                
+                
+                try {
+                    const reader = res.body.getReader();
+                    let result;
+                    while (!(result = await reader.read()).done) {
+                        // console.log('inside await while loop')
+                        // replace dots
+                        if (branch.contains(dots)){
+                            // console.log('dots detected')
+                            branch.replaceChild(messageElement, dots)
+                            // console.log('dots removed')
+                        } 
+                        const chunk = result.value; // This is a Uint8Array   
+                        const textDecoded = new TextDecoder("utf-8").decode(chunk); // Decode chunk to text
+                        messageElement.text = messageElement.text + textDecoded;
 
-                    mdToHTML(messageElement.text, messageElement);
-                    messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
+                        mdToHTML(messageElement.text, messageElement);
+                        messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
+                    }
+                    reader.releaseLock();
+                }
+                catch (error) {
+                    console.error('Error reading stream:', error)
                 }
 
             } else {
