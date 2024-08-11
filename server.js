@@ -21,7 +21,7 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days (adjust as necessary)
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // Use secure flag in production
-        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // None for cross-site in production
+        sameSite: 'Lax', // None for cross-site in production
         domain: '.intelchain.io', // allow cookie to be shared across subdomains
 
     }

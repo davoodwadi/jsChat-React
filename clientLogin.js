@@ -29,7 +29,7 @@ export async function loginUser(username, password){
             password: password,
         }), 
         headers: { 'Content-Type': 'application/json' }, 
-        credentials: 'include' // Add this line  
+        credentials: 'include'
     })
     
     if (res.ok) {
