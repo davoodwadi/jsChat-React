@@ -14,18 +14,18 @@ console.log('process.env.NODE_ENV')
 console.log(process.env.NODE_ENV)
 // Add session middleware
 app.use(session({
-    secret: 'random_string_secret_key',  // replace with a strong secret
+    secret: process.env.SESSION_SECRET,  // replace with a strong secret
     resave: false,
     saveUninitialized: false,
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days (adjust as necessary)
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // Use secure flag in production
-        sameSite: 'Lax'
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax' // None for cross-site in production
     }
 }));
 app.use(cors({
-    origin: 'https://time-machine-db.netlify.app', // Replace with Netlify Url https
+    origin: 'https://time-machine-db.netlify.app', 
     methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
     credentials: true // Allow credentials (cookies)
 }));
