@@ -25,7 +25,7 @@ app.use(session({
     }
 }));
 app.use(cors({
-    origin: 'http://127.0.0.1:5500', // Replace with Netlify Url https
+    origin: 'https://time-machine-db.netlify.app/', // Replace with Netlify Url https
     methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
     credentials: true // Allow credentials (cookies)
 }));
