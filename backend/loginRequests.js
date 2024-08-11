@@ -91,12 +91,12 @@ export async function login(req, res) {
             req.session.userId = updatedUser._id;  // Store user ID in the session
 
             // Set cookie attributes
-            res.cookie('sessionId', req.session.userId, {
+            res.cookie('userId', req.session.userId, {
                 httpOnly: true, // Prevents access to the cookie from JavaScript
                 secure: true,  // Ensure this is true for HTTPS
                 sameSite: 'None', // Required since both front and back are under the same domain
             });
-            
+
             console.log(req.session)
             // res.json('Correct');
             res.send(req.session.userId)
