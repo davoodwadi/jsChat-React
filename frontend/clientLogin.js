@@ -1,4 +1,5 @@
-const urlBase = 'https://server.intelchain.io/'
+const urlBase = 'https://start.intelchain.io/'
+// const urlBase = 'http://127.0.0.1:3000/'
 const loginUrl = urlBase+'users/'
 
 
