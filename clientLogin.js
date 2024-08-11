@@ -1,4 +1,4 @@
-const urlBase = 'https://jschatapi.onrender.com/'
+const urlBase = 'https://server.intelchain.io/'
 const loginUrl = urlBase+'users/'
 
 

@@ -25,7 +25,7 @@ app.use(session({
     }
 }));
 app.use(cors({
-    origin: 'https://time-machine-db.netlify.app', 
+    origin: 'https://db.intelchain.io', 
     methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
     credentials: true // Allow credentials (cookies)
 }));
