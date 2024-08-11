@@ -4,6 +4,7 @@ import session from 'express-session';
 import path from 'path'
 import { fileURLToPath } from 'url';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { load, save, signup, login, authenticate, logout, profile, test } from './loginRequests.js';
 import { getHfCompletions, getStreamGPT, headStreamGpt, hfCompletions, hfCompletions70b, hfCompletions8b, streamGpt } from './apiRequests.js';
 
