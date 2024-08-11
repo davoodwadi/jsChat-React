@@ -10,21 +10,22 @@ const isHttps = false;
 const port = process.env.PORT || 3000;
 
 const app = express();
+console.log('process.env.NODE_ENV')
+console.log(process.env.NODE_ENV)
 // Add session middleware
 app.use(session({
     secret: 'random_string_secret_key',  // replace with a strong secret
     resave: false,
     saveUninitialized: false,
-    // cookie: { secure: isHttps },     // Set to true if using HTTPS
     cookie: {
-        maxAge: 1000 * 60 * 60, // 1 hour (adjust as necessary)
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days (adjust as necessary)
         httpOnly: true,
-        secure: false, // Only use secure flag in production
-        sameSite: 'Lax' // or 'Lax', based on your use case
+        secure: process.env.NODE_ENV === 'production', // Use secure flag in production
+        sameSite: 'Lax'
     }
 }));
 app.use(cors({
-    origin: 'http://127.0.0.1:5500', // Replace with your client origin
+    origin: 'http://127.0.0.1:5500', // Replace with Netlify Url https
     methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
     credentials: true // Allow credentials (cookies)
 }));
