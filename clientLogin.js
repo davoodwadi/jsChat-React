@@ -1,4 +1,4 @@
-const urlBase = 'http://127.0.0.1:3000/'
+const urlBase = 'https://jschatapi.onrender.com/'
 const loginUrl = urlBase+'users/'
 
 
