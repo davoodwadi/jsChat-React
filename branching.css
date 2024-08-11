@@ -69,6 +69,51 @@ body {
     flex: 1;
     margin: 0 5px;
 }
+
+#greeting {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0056b3; /* Blue text to match buttons */
+    margin-bottom: 20px; /* Space between the welcome message and buttons */
+    text-align: center; /* Center align the welcome message */
+    background-color: #e6f7ff; /* Light blue background to match user messages */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+}
+/* Button Styles */
+button {
+    font-family: Arial, sans-serif;
+    background-color: #e6f7ff; /* Light blue background */
+    color: #0056b3; /* Blue text */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    margin: 5px; /* Add some space between buttons */
+}
+
+.button-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+button:hover {
+    background-color: #0056b3; /* Dark blue background on hover */
+    color: #ffffff; /* White text on hover */
+}
+
+button:active {
+    background-color: #003f8a; /* Darker blue on click */
+    color: #ffffff; /* White text on click */
+}
+
+
 blockquote {
     font-family: Arial, sans-serif;
     font-size: 1.1em;
@@ -115,14 +160,6 @@ blockquote p {
     color: #5e5e5ece;
 }
 
-/* .clipboard {
-    cursor: pointer;
-    
-}
-
-.clipboard:hover {
-    color: #0056b3;
-} */
 
 .clipboard {
     cursor: pointer;

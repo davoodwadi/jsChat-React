@@ -5,8 +5,7 @@ import { OpenAI } from 'openai';
 
 import fetch from 'node-fetch';
 
-const openaiToken = process.env.openaiintelChainKey;
-const hfToken = process.env.HF_TOKEN;
+import { createClient } from 'redis';
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -14,8 +13,51 @@ const port = process.env.PORT || 4000;
 app.use(cors());
 // Middleware to parse JSON bodies
 app.use(express.json());
-const openai = new OpenAI({apiKey: openaiToken});
 
+// set redis client
+const client = createClient({
+  url: 'redis://127.0.0.1:6379' 
+});
+client.on('error', err => console.log('Redis Client Error', err));
+await client.connect();
+console.log(`connected to db: ${client.isReady}`)
+
+await saveMessages('John', 'hiiii');
+const latest = await loadLatestMessages('John')
+console.log(latest)
+
+app.post('/api/redis/save', async (req, res) => {
+  try {
+    const body = req.body
+    console.log('body')
+    console.log(body.username)
+    const response = await saveMessages(body.username, body.saveContainer)
+    res.json(response)
+  } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: error });
+  }
+});
+app.post('/api/redis/load', async (req, res) => {
+  try {
+    const body = req.body
+    console.log('body')
+    console.log(body.username)
+    const response = await loadLatestMessages(body.username)
+    // console.log('response')
+    // console.log(response)
+    res.json({saveContainer: response})
+  } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: error });
+  }
+});
+//
+
+const openaiToken = process.env.openaiintelChainKey;
+const hfToken = process.env.HF_TOKEN;
+
+const openai = new OpenAI({apiKey: openaiToken});
 // HF-api endpoint
 const hfUrl8b =  "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
 const hfUrl70b =  "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-70B-Instruct";
@@ -180,6 +222,56 @@ app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
 
+
+
+async function saveMessages(username, html){
+  const userExists = await client.exists(username)
+  // if exists: 1 else 0; 
+  const now = new Date();
+  console.log(userExists==1)
+  if (userExists===0){ // new user
+      console.log('new user: ', username)
+      // set counter
+      let resp = await client.json.set(username, '$', {counter: 1})
+
+      resp = await client.json.set(username, '$.1', { // set content at the counter
+          'time': now,
+          'saveContainer': html}
+      )
+  } else { // old user
+      console.log('old user: ', username)
+      // get counter
+      const counter = await client.json.get(username, {
+          path: '$.counter'
+      })
+      
+      const counterNext = counter[0] + 1;
+      
+      let resp = await client.json.set(username, '$.'+counterNext, { // set content at the counter
+          'time': now,
+          'saveContainer': html}
+      )
+      
+      // increment the counter
+      resp = await client.json.numIncrBy(username, '$.counter', 1);
+      console.log('***saved successfully***')
+      return resp
+  }
+}
+
+async function loadLatestMessages(username){
+  // return undefined if user not exists
+  const counter = await client.json.get(username, {path: '$.counter'})
+  if (!counter){
+      console.log('undefined counter')
+      return undefined
+  } else{
+      const path = '$.{counter}.saveContainer'.replace('{counter}', counter[0])
+      const html = await client.json.get(username, {'path': path})
+      console.log('***loaded successfully***')
+      return html[0]
+  }
+}
 
 
 

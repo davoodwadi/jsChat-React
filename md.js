@@ -110,14 +110,14 @@ export function mdToHTML(fileText, botMessage){
   }
   // botMessage.replaceChildren()
   // botMessage.innerHTML = '';
-  console.log('botMessage.children')
-  console.log(botMessage.children)
+  // console.log('botMessage.children')
+  // console.log(botMessage.children)
   // to prevent uncaught errors
   if (!botMessage){
     return
   }
-  log('fileText')
-  log(fileText)
+  // log('fileText')
+  // log(fileText)
 
   // Regular expression to match triple backticks
   const regex = /```/;
@@ -159,8 +159,8 @@ export function mdToHTML(fileText, botMessage){
   // remove empty or \n
   chunks = chunks.filter(chunk => chunk.text.trim()!=='')
 
-  console.log('chunks')
-  console.log(chunks)
+  // console.log('chunks')
+  // console.log(chunks)
 
   // let cleans = []
   let output
@@ -195,7 +195,7 @@ export function mdToHTML(fileText, botMessage){
     // console.log('output')
     // console.log(output)
     // console.log('botMessage.children')
-    console.log(botMessage.children)
+    // console.log(botMessage.children)
     
     // if (botMessage.oldOutput!==undefined){
     //   botMessage.replaceChild(output, botMessage.oldOutput)
