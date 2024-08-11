@@ -43,6 +43,8 @@ app.use(cors({
 
 // Serve static files from the frontend directory
 app.use(express.static(path.join(__dirname, '../frontend')));
+
+app.use(cookieParser()); // To parse cookies from request headers
 // Add session middleware
 app.use(session({
     secret: process.env.SESSION_SECRET || 'default_secret',  // replace with a strong secret
@@ -53,6 +55,7 @@ app.use(session({
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // Use secure flag in production
         sameSite: 'None', // None for cross-site in production
+        domain: '.intelchain.io',
 
     }
 }));

@@ -95,6 +95,7 @@ export async function login(req, res) {
                 httpOnly: true, // Prevents access to the cookie from JavaScript
                 secure: true,  // Ensure this is true for HTTPS
                 sameSite: 'None', // Required since both front and back are under the same domain
+                domain: '.intelchain.io',
             });
 
             console.log(req.session)
@@ -122,19 +123,22 @@ export function authenticate(req, res, next) {
     console.log('*'.repeat(50))
     console.log('authenticate: req.session')
     console.log(req.session)
-    if (req.session.userId) {
+    console.log('Cookies: ', req.cookies);
+    if (req.cookies.userId) {
         next();
     } else {
         res.status(401).send('Unauthorized. Please log in.');
     }
 };
 
-export async function profile(req, res) {
+export async function profile(req, res) { // it goes through authenticate function above
     // Fetch user data using req.session.userId
     console.log('*'.repeat(50))
     console.log('Profile: req.session.userId')
     console.log(req.session.userId)
-    const user = await id2User(req.session.userId)
+    console.log('req.cookies')
+    console.log(req.cookies)
+    const user = await id2User(req.cookies.userId)
     res.json(user);
 };
 
