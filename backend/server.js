@@ -22,6 +22,7 @@ const allowedOrigins = [
   'https://start.intelchain.io',     // Production domain
   'https://chat.intelchain.io',     // Production domain
   'https://db.intelchain.io',     // Production domain
+  'https://jschatapi.onrender.com',
 ];
 
 app.use(cors({

@@ -11,7 +11,8 @@ export async function signupUser(username, password){
             username: username,
             password: password,
         }), 
-        headers: { 'Content-Type': 'application/json' },   
+        headers: { 'Content-Type': 'application/json' }, 
+        credentials: 'include',  
     })
     
     if (res.ok) {
