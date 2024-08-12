@@ -90,7 +90,7 @@ export async function login(req, res) {
         } else if (user.password === askedPassword) {
             await updateInfo(user.username, {lastLogin: new Date()})
             const updatedUser = await getUser(user.username)
-            // req.session.userId = updatedUser._id;  // Store user ID in the session
+            req.session.userId = updatedUser._id;  // Store user ID in the session
 
             // Set cookie attributes
             res.cookie('userId', updatedUser._id, {
@@ -99,9 +99,12 @@ export async function login(req, res) {
                 sameSite: 'None', // Required since both front and back are under the same domain
                 domain: '.intelchain.io',
             });
-
+            console.log('*'.repeat(50))
             console.log('req.session')
             console.log(req.session)
+            console.log('req.cookies')
+            console.log(req.cookies)
+            console.log('*'.repeat(50))
             // res.json('Correct');
             res.send(updatedUser._id)
         } else {
