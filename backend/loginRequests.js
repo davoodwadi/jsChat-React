@@ -65,11 +65,12 @@ export async function signup (req, res) {
             // add user to db
             await addUser(newUserName, newPassword)
             const newUserEntry = await getUser(newUserName)
-            req.session.userId = newUserEntry._id;  // Store user ID in the session
+            // req.session.userId = newUserEntry._id;  // Store user ID in the session
+
             // req.session.cookie.userId = user._id;  // Store user ID in the session
             console.log('req.session')
             console.log(req.session)
-            res.send(req.session.userId)
+            res.send(newUserEntry._id)
         }
 
     } catch(error){
@@ -89,10 +90,10 @@ export async function login(req, res) {
         } else if (user.password === askedPassword) {
             await updateInfo(user.username, {lastLogin: new Date()})
             const updatedUser = await getUser(user.username)
-            req.session.userId = updatedUser._id;  // Store user ID in the session
+            // req.session.userId = updatedUser._id;  // Store user ID in the session
 
             // Set cookie attributes
-            res.cookie('userId', req.session.userId, {
+            res.cookie('userId', updatedUser._id, {
                 httpOnly: true, // Prevents access to the cookie from JavaScript
                 secure: true,  // Ensure this is true for HTTPS
                 sameSite: 'None', // Required since both front and back are under the same domain
@@ -102,7 +103,7 @@ export async function login(req, res) {
             console.log('req.session')
             console.log(req.session)
             // res.json('Correct');
-            res.send(req.session.userId)
+            res.send(updatedUser._id)
         } else {
             res.json('Not allowed');
         }

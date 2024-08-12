@@ -3,7 +3,7 @@ import { getResponseServer } from "./apiModule.js";
 import { mdToHTML } from './md.js';
 import { signupUser, loginUser, logoutUser, getProfile, testSession, saveSession, loadLatestSession } from './clientLogin.js';
 
-const apiUrlGPT = 'https://start.intelchain.io/api/gpt/completions/stream' 
+const apiUrlGPT = 'https://chat.intelchain.io/api/gpt/completions/stream' 
 // const apiUrlGPT = 'http://127.0.0.1:3000/api/gpt/completions/stream' 
 const decoder = new TextDecoder();
 let bot_default_message = `To load a CSV file using Python, you can use the \`pandas\` library, which is a powerful tool for data manipulation and analysis. Here's a basic example:
