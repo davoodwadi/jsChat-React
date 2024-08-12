@@ -13,7 +13,7 @@ export async function load(req, res) {
         } else if (user.password === askedPassword) {
             const latest = await getLatestSession(askedUserName)
             console.log('loading latest session')
-            console.log(latest)
+            // console.log(latest)
             
             res.json(latest)
         } else {
@@ -38,7 +38,7 @@ export async function save(req, res) {
         } else if (user.password === askedPassword) {
             await addSaveContainer(askedUserName, saveContainer);
             console.log('adding saveContainer')
-            console.log(saveContainer)
+            // console.log(saveContainer)
             
             const updatedUser = await getUser(user.username)
             
@@ -67,6 +67,7 @@ export async function signup (req, res) {
             const newUserEntry = await getUser(newUserName)
             req.session.userId = newUserEntry._id;  // Store user ID in the session
             // req.session.cookie.userId = user._id;  // Store user ID in the session
+            console.log('req.session')
             console.log(req.session)
             res.send(req.session.userId)
         }
@@ -98,6 +99,7 @@ export async function login(req, res) {
                 domain: '.intelchain.io',
             });
 
+            console.log('req.session')
             console.log(req.session)
             // res.json('Correct');
             res.send(req.session.userId)
@@ -121,9 +123,13 @@ export function logout(req, res) {
 
 export function authenticate(req, res, next) {
     console.log('*'.repeat(50))
-    console.log('authenticate: req.session')
+    console.log('authenticate:**********')
+    console.log('req.session')
     console.log(req.session)
-    console.log('Cookies: ', req.cookies);
+    console.log('Cookies: ');
+    console.log('req.cookies')
+    console.log(req.cookies)
+    console.log('*'.repeat(50))
     if (req.cookies.userId) {
         next();
     } else {
@@ -134,10 +140,12 @@ export function authenticate(req, res, next) {
 export async function profile(req, res) { // it goes through authenticate function above
     // Fetch user data using req.session.userId
     console.log('*'.repeat(50))
-    console.log('Profile: req.session.userId')
+    console.log('Profile:***************')
+    console.log('req.session.userId')
     console.log(req.session.userId)
     console.log('req.cookies')
     console.log(req.cookies)
+    console.log('*'.repeat(50))
     const user = await id2User(req.cookies.userId)
     res.json(user);
 };

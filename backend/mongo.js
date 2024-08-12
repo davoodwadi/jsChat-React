@@ -48,7 +48,7 @@ export async function id2User(id){
         console.log(objId)
         const oneDoc = await collection.findOne({ _id: objId })
         console.log('entry found')
-        console.log(oneDoc)
+        // console.log(oneDoc)
         return oneDoc
     
     } catch(error){
@@ -66,7 +66,7 @@ export async function getAllMatchingUsers(username){
         // console.log(allDocs)
         for await(const doc of allDocs){
             console.log('*'.repeat(50))
-            console.log(doc)
+            // console.log(doc)
             console.log('*'.repeat(50))
         }
     }
@@ -119,7 +119,7 @@ export async function getLatestSession(username) {
         );
 
         if (user && user.sessions.length > 0) {
-            console.log("Latest session: ", user.sessions[0]);
+            // console.log("Latest session: ", user.sessions[0]);
             return user.sessions[0]; // Return the latest session
         } else {
             console.log("No sessions found for this user");
