@@ -4,7 +4,7 @@ const mongoPassword = process.env.mongoPassword
 const uri = "mongodb+srv://davoodwadi:<password>@cluster0.xv9un.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0".replace('<password>', mongoPassword)
 
 let client;
-const db = 'test';
+const db = 'chat';
 const col = 'chatUsers';
 
 function connectDB() {

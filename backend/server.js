@@ -1,6 +1,7 @@
 import {getDB, getUser, addUser, getAllMatchingUsers, getLatestSession, updateInfo, addSaveContainer, id2User} from './mongo.js' 
 import express from 'express'
 import session from 'express-session';
+import MongoDBStore from 'connect-mongodb-session';
 import path from 'path'
 import { fileURLToPath } from 'url';
 import cors from 'cors';
@@ -13,61 +14,41 @@ const __dirname = path.dirname(__filename);
 // const isHttps = true;
 const port = process.env.PORT || 3000;
 
+// mongodb session
+const store = new MongoDBStore(session);
+const mongoPassword = process.env.mongoPassword
+const uri = "mongodb+srv://davoodwadi:<password>@cluster0.xv9un.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0".replace('<password>', mongoPassword)
+
+const mongodbStore = new store({
+  uri: uri,
+  databaseName: 'chat',
+  collection: 'chatSessions',
+},
+function(error) {
+  // Should have gotten an error
+  console.log('*****session DB error:', error)
+}
+);
+
+// Catch errors
+mongodbStore.on('error', (error) => {
+  console.log('*****theres an error in the session DB*******')
+  console.error(error);
+});
+
 const app = express();
 console.log('process.env.NODE_ENV')
 console.log(process.env.NODE_ENV)
 
-// const allowedOrigins = [
-//   'http://localhost:3000', // Development
-//   'http://127.0.0.1:3000',
-//   'https://start.intelchain.io',     // Production domain
-//   'https://chat.intelchain.io',     // Production domain
-//   'https://db.intelchain.io',     // Production domain
-//   'https://jschatapi.onrender.com',
-// ];
-
-// app.use(cors({
-//   origin: (origin, callback) => {
-//       console.log('Incoming Origin:', origin); // Log the incoming request origin
-//       // Allow requests with no origin (like mobile apps or curl requests)
-//       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-//           console.log('passing the request')
-//           callback(null, true);
-//       } else {
-//           console.log('killing the request')
-//           callback(new Error('Not allowed by CORS'));
-//       }
-//   },
-//   methods: 'GET, POST, PUT, DELETE',
-//   credentials: true,
-// }));
-
 // Serve static files from the frontend directory
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// app.use(cookieParser()); // To parse cookies from request headers
-
-// trust first proxy
-// app.set('trust proxy', 1)
-// Add session middleware
-// app.use(session({
-//     secret: process.env.SESSION_SECRET || 'default_secret',  // replace with a strong secret
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//         maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days (adjust as necessary)
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === 'production', // Use secure flag in production
-//         sameSite: 'Lax', // None for cross-site in production
-//         domain: '.intelchain.io',
-
-//     }
-// }));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'default_secret',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  store: mongodbStore,
 }))
 
 app.use(express.json())
