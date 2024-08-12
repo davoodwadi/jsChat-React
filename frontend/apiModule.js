@@ -30,7 +30,7 @@
 // `.trim();
 
 // const apiUrl = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
-const apiUrlHF8b = 'http://localhost:4000/api/hf/8b/completions'; // API endpoint on your server
+const apiUrlHF8b = '/api/hf/8b/completions'; // API endpoint on your server
 // const apiUrl = 'http://192.168.1.44:4000/api/hf/completions'; // API endpoint on your server
 // const apiUrl = 'https://jschatapi.onrender.com/api/hf/completions'
 // const apiUrl = 'https://pathology-tires-references-gerald.trycloudflare.com/api/hf/completions'

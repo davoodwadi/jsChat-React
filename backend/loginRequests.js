@@ -3,22 +3,22 @@ import {getDB, getUser, addUser, getAllMatchingUsers, getLatestSession, updateIn
 export async function load(req, res) {
     console.log('calling from outside')
     try {
-        const askedUserName = req.body.username;
-        const askedPassword = req.body.password;
-
-        const user = await getUser(askedUserName);
-        
-        if (!user) {
-            res.json('User not found. Please login.');
-        } else if (user.password === askedPassword) {
-            const latest = await getLatestSession(askedUserName)
-            console.log('loading latest session')
-            // console.log(latest)
-            
-            res.json(latest)
+        console.log('Load latest*****************')
+        if (!req.session.userId){
+            res.json('Not logged in. Please login.');
         } else {
-            res.json('Not allowed');
+            const user = await id2User(req.session.userId);
+            if (!user) {
+                res.json('User not found. Please login.');
+            } else {
+                const latest = await getLatestSession(user.username);
+                console.log('loading latest session');
+                // console.log(latest)
+                
+                res.json(latest);
+            }
         }
+        
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
@@ -27,24 +27,22 @@ export async function load(req, res) {
 
 export async function save(req, res) {
     try {
-        const askedUserName = req.body.username;
-        const askedPassword = req.body.password;
+        console.log('Saving saveContainer*****************')
         const saveContainer = req.body.saveContainer
 
-        const user = await getUser(askedUserName);
-        
-        if (!user) {
-            res.json('User not found. Please login.');
-        } else if (user.password === askedPassword) {
-            await addSaveContainer(askedUserName, saveContainer);
-            console.log('adding saveContainer')
-            // console.log(saveContainer)
-            
-            const updatedUser = await getUser(user.username)
-            
-            res.json(updatedUser)
+        // const user = await getUser(askedUserName);
+        if (!req.session.userId){
+            res.json('Not logged in. Please login.');
         } else {
-            res.json('Not allowed');
+            const user = await id2User(req.session.userId)
+            if (!user) {
+                res.json('User not found. Please login.');
+            } else {
+                await addSaveContainer(user.username, saveContainer);
+                console.log('adding saveContainer for ' + user.username)
+                const updatedUser = await getUser(user.username)
+                res.json(updatedUser)
+            }
         }
     } catch (error) {
         console.log(error);
@@ -65,7 +63,7 @@ export async function signup (req, res) {
             // add user to db
             await addUser(newUserName, newPassword)
             const newUserEntry = await getUser(newUserName)
-            // req.session.userId = newUserEntry._id;  // Store user ID in the session
+            req.session.userId = newUserEntry._id;  // Store user ID in the session
 
             // req.session.cookie.userId = user._id;  // Store user ID in the session
             console.log('*'.repeat(50))
@@ -92,40 +90,36 @@ export async function login(req, res) {
         if (!user) {
             res.json('User not found.');
         } else if (user.password === askedPassword) {
-            await updateInfo(user.username, {lastLogin: new Date()})
-            const updatedUser = await getUser(user.username)
-            req.session.userId = updatedUser._id;  // Store user ID in the session
+            // regenerate the session, which is good practice to help
+            // guard against forms of session fixation
+            req.session.regenerate(async function (err) {
+                if (err) next(err)
+            
+                // store user information in session, typically a user id
+                await updateInfo(req.body.username, {lastLogin: new Date()})
+                const updatedUser = await getUser(req.body.username)
+                req.session.userId = updatedUser._id;  // Store user ID in the session
 
-            // save session each time info is modified
-            // save the session before redirection to ensure page
-            // load does not happen before session is saved
-            req.session.save(function (err) {
-                if (err) {return next(err)}
+                //   req.session.userId = req.body.username
                 console.log('*'.repeat(50))
-                console.log('session saved')
+                console.log('before save')
                 console.log('req.session')
                 console.log(req.session)
                 console.log('*'.repeat(50))
-            });
 
-            // Set cookie attributes
-            res.cookie('userId', updatedUser._id, {
-                httpOnly: true, // Prevents access to the cookie from JavaScript
-                secure: true,  // Ensure this is true for HTTPS
-                sameSite: 'None', // Required since both front and back are under the same domain
-                domain: '.intelchain.io',
-            });
-            console.log('*'.repeat(50))
-            console.log('login**************')
-            console.log('req.session.userId')
-            console.log(req.session.userId)
-            console.log('req.session')
-            console.log(req.session)
-            console.log('req.cookies')
-            console.log(req.cookies)
-            console.log('*'.repeat(50))
-            // res.json('Correct');
-            res.send(updatedUser._id)
+                // save the session before redirection to ensure page
+                // load does not happen before session is saved
+                req.session.save(function (err) {
+                if (err) return next(err)
+                // res.redirect('/')
+                })
+                console.log('*'.repeat(50))
+                console.log('after save')
+                console.log('req.session')
+                console.log(req.session)
+                console.log('*'.repeat(50))
+                res.json('Correct')
+        })  
         } else {
             res.json('Not allowed');
         }
@@ -133,36 +127,41 @@ export async function login(req, res) {
         console.log(error);
         res.status(500).send(error);
     }
+
 };
 
 export function logout(req, res) {
-    console.log('*'.repeat(50))
-    console.log('logout********')
-    res.clearCookie('userId', { domain: '.intelchain.io', path: '/' });
-    console.log('After res.clearCookie')
-    console.log('req.session.userId')
-    console.log(req.session.userId)
-    console.log('req.session')
-    console.log(req.session)
-    console.log('Cookies: ');
-    console.log('req.cookies')
-    console.log(req.cookies)
+    // logout logic
+  console.log('*'.repeat(50))
+  console.log('before logout')
+  console.log('req.session')
+  console.log(req.session)
+  console.log('*'.repeat(50))
+  // clear the user from the session object and save.
+  // this will ensure that re-using the old session id
+  // does not have a logged in user
+  req.session.userId = null
+  console.log('*'.repeat(50))
+  console.log('logout before save')
+  console.log('req.session')
+  console.log(req.session)
+  console.log('*'.repeat(50))
+  req.session.save(function (err) {
+    if (err) next(err)
 
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).send('Could not log out.');
-        }
-        res.json('Logged out successfully.');
-    });
-    console.log('after req.session.destroy')
-    console.log('req.session.userId')
-    console.log(req.session.userId)
-    console.log('req.session')
-    console.log(req.session)
-    console.log('Cookies: ');
-    console.log('req.cookies')
-    console.log(req.cookies)
-    console.log('*'.repeat(50))
+    // regenerate the session, which is good practice to help
+    // guard against forms of session fixation
+    req.session.regenerate(function (err) {
+      if (err) next(err)
+    //   res.redirect('/')
+    })
+  })
+  console.log('*'.repeat(50))
+  console.log('logout after save')
+  console.log('req.session')
+  console.log(req.session)
+  console.log('*'.repeat(50))
+  res.json('Server: logged out successfully.')
 };
 
 export function authenticate(req, res, next) {
@@ -172,14 +171,11 @@ export function authenticate(req, res, next) {
     console.log(req.session.userId)
     console.log('req.session')
     console.log(req.session)
-    console.log('Cookies: ');
-    console.log('req.cookies')
-    console.log(req.cookies)
     console.log('*'.repeat(50))
-    if (req.cookies.userId) {
+    if (req.session.userId) {
         next();
     } else {
-        res.status(401).send('Unauthorized. Please log in.');
+        res.status(200).send('Unauthorized. Please log in.');
     }
 };
 
@@ -189,10 +185,8 @@ export async function profile(req, res) { // it goes through authenticate functi
     console.log('Profile:***************')
     console.log('req.session.userId')
     console.log(req.session.userId)
-    console.log('req.cookies')
-    console.log(req.cookies)
     console.log('*'.repeat(50))
-    const user = await id2User(req.cookies.userId)
+    const user = await id2User(req.session.userId)
     res.json(user);
 };
 

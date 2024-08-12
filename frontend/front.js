@@ -3,7 +3,8 @@ import { getResponseServer } from "./apiModule.js";
 import { mdToHTML } from './md.js';
 import { signupUser, loginUser, logoutUser, getProfile, testSession, saveSession, loadLatestSession } from './clientLogin.js';
 
-const apiUrlGPT = 'https://chat.intelchain.io/api/gpt/completions/stream' 
+const apiUrlGPT = '/api/gpt/completions/stream' 
+// const apiUrlGPT = 'https://chat.intelchain.io/api/gpt/completions/stream' 
 // const apiUrlGPT = 'http://127.0.0.1:3000/api/gpt/completions/stream' 
 const decoder = new TextDecoder();
 let bot_default_message = `To load a CSV file using Python, you can use the \`pandas\` library, which is a powerful tool for data manipulation and analysis. Here's a basic example:
@@ -76,7 +77,8 @@ async function saveDOM(){
     const profile = await getProfile()
     const saveContainer = allMessages.innerHTML
     log('*'.repeat(50))
-    const saveResp = await saveSession(profile.username, profile.password, saveContainer)
+    // const saveResp = await saveSession(profile.username, profile.password, saveContainer)
+    const saveResp = await saveSession(saveContainer)
     console.log('saved session...')
     // const response = await saveAsJSON(saveContainer);
     log('*'.repeat(50))
@@ -426,6 +428,7 @@ async function handleDOMContentLoaded() {
             // log(logUsername)
             // log(logPassword)
             const loginRes = await loginUser(logUsername, logPassword)
+            console.log(loginRes)
             // console.log('loginRes')
             // console.log(loginRes)
             if (loginRes.includes('Not allowed')){

@@ -1,18 +1,17 @@
-const urlBase = 'https://chat.intelchain.io/'
-// const urlBase = 'http://127.0.0.1:3000/'
-const loginUrl = urlBase+'users/'
+// const urlBase = 'https://chat.intelchain.io'
+// const urlBase = 'http://127.0.0.1:3000'
+const loginUrl = '/users'
 
 
 
 export async function signupUser(username, password){
-    const res = await fetch(loginUrl+'signup', {
+    const res = await fetch('/users/signup', {
         method: 'POST',
         body: JSON.stringify({
             username: username,
             password: password,
         }), 
         headers: { 'Content-Type': 'application/json' }, 
-        credentials: 'include',  
     })
     
     if (res.ok) {
@@ -24,14 +23,13 @@ export async function signupUser(username, password){
 }
 
 export async function loginUser(username, password){
-    const res = await fetch(loginUrl+'login', {
+    const res = await fetch('/users/login', {
         method: 'POST',
         body: JSON.stringify({
             username: username,
             password: password,
         }), 
         headers: { 'Content-Type': 'application/json' }, 
-        credentials: 'include'
     })
     
     if (res.ok) {
@@ -44,9 +42,8 @@ export async function loginUser(username, password){
 }
 
 export async function getProfile(){
-    const res = await fetch(loginUrl+'profile', {
+    const res = await fetch('/users/profile', {
         method: 'GET',
-        credentials: 'include' // Add this line
     })
     if (res.ok) {
         const responseData = await res.json();
@@ -58,9 +55,8 @@ export async function getProfile(){
 }
    
 export async function logoutUser(){
-    const res = await fetch(loginUrl+'logout', {
+    const res = await fetch('/users/logout', {
         method: 'GET',
-        credentials: 'include' // Add this line
     })
     if (res.ok) {
         const responseData = await res.json();
@@ -72,9 +68,8 @@ export async function logoutUser(){
 }
     
 export async function testSession(){
-    const res = await fetch(urlBase+'test-session', {
+    const res = await fetch('/test-session', {
         method: 'GET',
-        credentials: 'include' // Add this line
     })
     if (res.ok) {
         const responseData = await res.json();
@@ -85,16 +80,15 @@ export async function testSession(){
     }
 }
 
-export async function saveSession(username, password, saveContainer){
-    const res = await fetch(loginUrl+'save', {
+export async function saveSession(saveContainer){
+    const res = await fetch('/users/save', {
         method: 'POST',
         body: JSON.stringify({
-            username: username,
-            password: password,
+            // username: username,
+            // password: password,
             saveContainer: saveContainer,
         }), 
         headers: { 'Content-Type': 'application/json' }, 
-        credentials: 'include' // Add this line  
     })
     
     if (res.ok) {
@@ -107,14 +101,13 @@ export async function saveSession(username, password, saveContainer){
 }
 
 export async function loadLatestSession(username, password){
-    const res = await fetch(loginUrl+'load', {
+    const res = await fetch('/users/load', {
         method: 'POST',
         body: JSON.stringify({
             username: username,
             password: password,
         }), 
         headers: { 'Content-Type': 'application/json' }, 
-        credentials: 'include' // Add this line  
     })
     
     if (res.ok) {
