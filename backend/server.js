@@ -46,6 +46,9 @@ app.use(cors({
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use(cookieParser()); // To parse cookies from request headers
+
+// trust first proxy
+app.set('trust proxy', 1)
 // Add session middleware
 app.use(session({
     secret: process.env.SESSION_SECRET || 'default_secret',  // replace with a strong secret

@@ -267,8 +267,12 @@ async function handleDOMContentLoaded() {
         authenticate.appendChild(authenticateLogout)
         const logoutButton = document.querySelector('#logoutButton')
         logoutButton.onclick = async () => {
+            // add spinner
+            logoutButton.textContent = ''
+            logoutButton.appendChild(spinner)
             const resp = await logoutUser()
             console.log('logged out', resp)
+            logoutButton.textContent = 'Logout'
             removeChildren(authenticate)
             authenticate.appendChild(authenticateButtons) 
             // if loadSaveContainer remove it
@@ -367,8 +371,13 @@ async function handleDOMContentLoaded() {
                 authenticate.appendChild(authenticateLogout)
                 const logoutButton = document.querySelector('#logoutButton')
                 logoutButton.onclick = async () => {
+                    // add spinner
+                    logoutButton.textContent = ''
+                    logoutButton.appendChild(spinner)
+                    //
                     const resp = await logoutUser()
                     console.log('logged out', resp)
+                    logoutButton.textContent = 'Logout'
                     removeChildren(authenticate)
                     authenticate.appendChild(authenticateButtons)
                     // if loadSaveContainer remove it
@@ -465,8 +474,13 @@ async function handleDOMContentLoaded() {
                 authenticate.appendChild(authenticateLogout)
                 const logoutButton = document.querySelector('#logoutButton')
                 logoutButton.onclick = async () => {
+                    // add spinner
+                    logoutButton.textContent = ''
+                    logoutButton.appendChild(spinner)
+                    //
                     const resp = await logoutUser()
                     console.log('logged out', resp)
+                    logoutButton.textContent = 'Logout'
                     removeChildren(authenticate)
                     authenticate.appendChild(authenticateButtons)
                     // if loadSaveContainer remove it

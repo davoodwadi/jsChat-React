@@ -68,8 +68,12 @@ export async function signup (req, res) {
             // req.session.userId = newUserEntry._id;  // Store user ID in the session
 
             // req.session.cookie.userId = user._id;  // Store user ID in the session
+            console.log('*'.repeat(50))
             console.log('req.session')
             console.log(req.session)
+            console.log('req.session.userId')
+            console.log(req.session.userId)
+            console.log('*'.repeat(50))
             res.send(newUserEntry._id)
         }
 
@@ -100,6 +104,9 @@ export async function login(req, res) {
                 domain: '.intelchain.io',
             });
             console.log('*'.repeat(50))
+            console.log('login**************')
+            console.log('req.session.userId')
+            console.log(req.session.userId)
             console.log('req.session')
             console.log(req.session)
             console.log('req.cookies')
@@ -121,6 +128,8 @@ export function logout(req, res) {
     console.log('logout********')
     res.clearCookie('userId', { domain: '.intelchain.io', path: '/' });
     console.log('After res.clearCookie')
+    console.log('req.session.userId')
+    console.log(req.session.userId)
     console.log('req.session')
     console.log(req.session)
     console.log('Cookies: ');
@@ -134,6 +143,8 @@ export function logout(req, res) {
         res.json('Logged out successfully.');
     });
     console.log('after req.session.destroy')
+    console.log('req.session.userId')
+    console.log(req.session.userId)
     console.log('req.session')
     console.log(req.session)
     console.log('Cookies: ');
@@ -145,6 +156,8 @@ export function logout(req, res) {
 export function authenticate(req, res, next) {
     console.log('*'.repeat(50))
     console.log('authenticate:**********')
+    console.log('req.session.userId')
+    console.log(req.session.userId)
     console.log('req.session')
     console.log(req.session)
     console.log('Cookies: ');
