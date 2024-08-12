@@ -96,6 +96,18 @@ export async function login(req, res) {
             const updatedUser = await getUser(user.username)
             req.session.userId = updatedUser._id;  // Store user ID in the session
 
+            // save session each time info is modified
+            // save the session before redirection to ensure page
+            // load does not happen before session is saved
+            req.session.save(function (err) {
+                if (err) {return next(err)}
+                console.log('*'.repeat(50))
+                console.log('session saved')
+                console.log('req.session')
+                console.log(req.session)
+                console.log('*'.repeat(50))
+            });
+
             // Set cookie attributes
             res.cookie('userId', updatedUser._id, {
                 httpOnly: true, // Prevents access to the cookie from JavaScript
