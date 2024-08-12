@@ -114,12 +114,29 @@ export async function login(req, res) {
 };
 
 export function logout(req, res) {
+    console.log('*'.repeat(50))
+    console.log('logout********')
+    res.clearCookie('userId', { domain: '.intelchain.io', path: '/' });
+    console.log('After res.clearCookie')
+    console.log('req.session')
+    console.log(req.session)
+    console.log('Cookies: ');
+    console.log('req.cookies')
+    console.log(req.cookies)
+
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).send('Could not log out.');
         }
         res.json('Logged out successfully.');
     });
+    console.log('after req.session.destroy')
+    console.log('req.session')
+    console.log(req.session)
+    console.log('Cookies: ');
+    console.log('req.cookies')
+    console.log(req.cookies)
+    console.log('*'.repeat(50))
 };
 
 export function authenticate(req, res, next) {
