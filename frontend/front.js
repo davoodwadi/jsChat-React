@@ -268,6 +268,8 @@ async function handleDOMContentLoaded() {
     //          bot 
     // signup/signin outside DOMLoaded
     // 
+    const authenticate = document.getElementById('authenticate')
+
     const authenticateButtons = document.createElement('div')
     authenticateButtons.id = 'authenticateButtons'
     authenticateButtons.classList.add('button-box')
@@ -282,43 +284,9 @@ async function handleDOMContentLoaded() {
     authenticateButtons.appendChild(loginButton)
 
 
-    const authenticateSignup = document.createElement('div')
-    authenticateSignup.innerHTML = `
-                <div class="auth-box">
-                    <input type="text" id="signUsername" class="input-text" placeholder="Username" />
-                    <input type="password" id="signPassword" class="input-text" placeholder="Password" />
-                </div>
-                <div class="button-box">
-                    <button id="signupButtonSubmit">Signup</button>
-                </div>
-    `
-    authenticateSignup.id = 'authenticateSignup'
-    authenticateSignup.classList.add('authentication-box')
-
-    // const authenticateLogin = document.getElementById('authenticateLogin')
-    const authenticateLogin = document.createElement('div')
-    authenticateLogin.innerHTML = `
-                <div class="auth-box">
-                    <input type="text" id="logUsername" class="input-text" placeholder="Username" />
-                    <input type="password" id="logPassword" class="input-text" placeholder="Password" />
-                </div>
-                <div class="button-box">
-                    <button id="loginButtonSubmit">Login</button>
-                </div>
-    `
-    authenticateLogin.id = 'authenticateLogin'
-    authenticateLogin.classList.add('authentication-box')
-
-    const authenticateLogout = document.createElement('div')
-    authenticateLogout.innerHTML = `
-    <button id="logoutButton">Logout</button>
-    `
-    authenticateLogout.id = 'authenticateLogout'
-    authenticateLogout.classList.add('button-box')
-
-
-
-    const authenticate = document.getElementById('authenticate')
+    let signupPage = createSignupPage()
+    let loginPage = createLoginPage()
+    let logoutContainer = createLogoutContainer()
     // check if already logged in
     const profile = await getProfile()
     // remove loading screen dotsUser
@@ -335,27 +303,10 @@ async function handleDOMContentLoaded() {
         removeChildren(authenticate)
         authenticate.appendChild(profileSection)
         // // create logoutButton
-        authenticate.appendChild(authenticateLogout)
+        authenticate.appendChild(logoutContainer)
         const logoutButton = document.querySelector('#logoutButton')
-        logoutButton.onclick = async () => {
-            // add spinner
-            logoutButton.textContent = ''
-            logoutButton.appendChild(spinner)
-            const resp = await logoutUser()
-            console.log('logged out', resp)
-            logoutButton.textContent = 'Logout'
-            // reset interface
-            resetInterface();
-            //
-            removeChildren(authenticate)
-            authenticate.appendChild(authenticateButtons) 
-            // if loadSaveContainer remove it
-            const loadSaveContainer = document.querySelector('#loadSaveContainer')
-            if (loadSaveContainer){
-                const chatBoxContainer = document.querySelector('#chat-box')
-                chatBoxContainer.removeChild(loadSaveContainer)
-            }  
-        }
+        logoutButton.onclick = logoutButtonClick
+
         // add load and save buttons
         const chatBoxContainer = document.querySelector('#chat-box')
         const loadSaveContainer = createLoadSave()
@@ -378,10 +329,9 @@ async function handleDOMContentLoaded() {
 
 
     signupButton.onclick = () => {
-        log('signing up')
         removeChildren(authenticate)
         
-        authenticate.appendChild(authenticateSignup)
+        authenticate.appendChild(signupPage)
         
         //
         const signupButtonSubmit = document.getElementById('signupButtonSubmit')
@@ -391,14 +341,7 @@ async function handleDOMContentLoaded() {
             signupButtonSubmit.appendChild(spinner)
             //
             // remove notes
-            const successNoteElement = authenticateSignup.querySelector('.success-note')
-            if (successNoteElement){
-                authenticateSignup.removeChild(successNoteElement)
-            }
-            const failureNoteElement = authenticateSignup.querySelector('.failure-note')
-            if (failureNoteElement){
-                authenticateSignup.removeChild(failureNoteElement)
-            }
+            removeNotes();
             //
             const signUsername = document.getElementById('signUsername').value.toLowerCase()
             const signPassword = document.getElementById('signPassword').value.toLowerCase()
@@ -411,12 +354,12 @@ async function handleDOMContentLoaded() {
                 failureNote.classList.add('failure-note')
                 failureNote.textContent = 'Username already exists'
 
-                authenticateSignup.appendChild(failureNote)
+                signupPage.appendChild(failureNote)
                 const insteadExists = authenticate.querySelector('#instead')
                 console.log('insteadExists')
                 console.log(insteadExists)
                 if (!insteadExists){
-                    authenticateSignup.appendChild(inlineLoginButton)
+                    signupPage.appendChild(inlineLoginButton)
                 }
 
             } else { // signup successful
@@ -424,7 +367,7 @@ async function handleDOMContentLoaded() {
                 successNote.classList.add('success-note')
                 successNote.textContent = 'Signed up. Redirecting.'
                 
-                authenticateSignup.appendChild(successNote)
+                signupPage.appendChild(successNote)
                 
                 // login automatically
                 const loginRes = await loginUser(signUsername, signPassword)
@@ -437,32 +380,12 @@ async function handleDOMContentLoaded() {
                 removeChildren(authenticate)
                 authenticate.appendChild(profileSection)
                 // // create logoutButton
-                authenticate.appendChild(authenticateLogout)
-                // remove authenticateSignup.appendChild(successNote)
-                authenticateSignup.removeChild(successNote)
+                authenticate.appendChild(logoutContainer)
+                // remove signupPage.appendChild(successNote)
+                signupPage.removeChild(successNote)
                 //
                 const logoutButton = document.querySelector('#logoutButton')
-                logoutButton.onclick = async () => {
-                    // add spinner
-                    logoutButton.textContent = ''
-                    logoutButton.appendChild(spinner)
-                    //
-                    const resp = await logoutUser()
-                    console.log('logged out', resp)
-                    logoutButton.textContent = 'Logout'
-                    // reset interface
-                    resetInterface();
-                    //
-                    removeChildren(authenticate)
-                    authenticate.appendChild(authenticateButtons)
-                    // if loadSaveContainer remove it
-                    const loadSaveContainer = document.querySelector('#loadSaveContainer')
-                    if (loadSaveContainer){
-                        const chatBoxContainer = document.querySelector('#chat-box')
-                        chatBoxContainer.removeChild(loadSaveContainer)
-                    }
-                    
-                }
+                logoutButton.onclick = logoutButtonClick
                 // add load save 
                 const chatBoxContainer = document.querySelector('#chat-box')
                 const loadSaveContainer = createLoadSave()
@@ -476,24 +399,16 @@ async function handleDOMContentLoaded() {
     loginButton.onclick = () => {
         removeChildren(authenticate)
         
-        authenticate.append(authenticateLogin)
-        log('logging in')
+        authenticate.append(loginPage)
         const loginButtonSubmit = document.getElementById('loginButtonSubmit')
         
         loginButtonSubmit.onclick = async () => {
             // add spinner
             loginButtonSubmit.textContent = ''
             loginButtonSubmit.appendChild(spinner)
-            //
+
             // remove notes
-            const successNoteElement = authenticateLogin.querySelector('.success-note')
-            if (successNoteElement){
-                authenticateLogin.removeChild(successNoteElement)
-            }
-            const failureNoteElement = authenticateLogin.querySelector('.failure-note')
-            if (failureNoteElement){
-                authenticateLogin.removeChild(failureNoteElement)
-            }
+            removeNotes();
             //
 
             const logUsername = document.getElementById('logUsername').value.toLowerCase()
@@ -501,41 +416,19 @@ async function handleDOMContentLoaded() {
             // log(logUsername)
             // log(logPassword)
             const loginRes = await loginUser(logUsername, logPassword)
+                            
+
             console.log(loginRes)
-            // console.log('loginRes')
-            // console.log(loginRes)
-            if (loginRes.includes('Not allowed')){
-                const failureNote = document.createElement('div')
-                failureNote.classList.add('failure-note')
-                failureNote.textContent = 'Password is incorrect.'
-                authenticateLogin.appendChild(failureNote)
-                const insteadExists = authenticate.querySelector('#instead')
-                console.log('insteadExists')
-                console.log(insteadExists)
-                if (!insteadExists){
-                    authenticateLogin.appendChild(inlineSignupButton)
-                }
-            } else if (loginRes.includes('User not found.')) {
-                const failureNote = document.createElement('div')
-                failureNote.classList.add('failure-note')
-                failureNote.textContent = 'Username not found.'
-                authenticateLogin.appendChild(failureNote)
-                const insteadExists = authenticate.querySelector('#instead')
-                console.log('insteadExists')
-                console.log(insteadExists)
-                if (!insteadExists){
-                    authenticateLogin.appendChild(inlineSignupButton)
-                }
-            } else { //login successful
-                console.log('login successful')
-                console.log('loginRes client')
-                console.log(loginRes)
+            if (loginRes.includes('Correct')){ // login successful
                 const successNote = document.createElement('div')
                 successNote.classList.add('success-note')
                 successNote.textContent = 'Logged in. Redirecting.'
-                authenticateLogin.appendChild(successNote)
+                loginPage.appendChild(successNote)
                 // store session id
                 const profile = await getProfile()
+
+                // reset loginbuttonsubmit
+                loginButtonSubmit.textContent = 'Login'
                 
                 // redirect
                 // create profile
@@ -544,40 +437,41 @@ async function handleDOMContentLoaded() {
                 removeChildren(authenticate)
                 authenticate.appendChild(profileSection)
                 // // create logoutButton
-                authenticate.appendChild(authenticateLogout)
+                authenticate.appendChild(logoutContainer)
                 // remove successNote
-                authenticateLogin.removeChild(successNote)
+                loginPage = createLoginPage()
                 //
                 const logoutButton = document.querySelector('#logoutButton')
-                logoutButton.onclick = async () => {
-                    // add spinner
-                    logoutButton.textContent = ''
-                    logoutButton.appendChild(spinner)
-                    //
-                    const resp = await logoutUser()
-                    console.log('logged out', resp)
-                    logoutButton.textContent = 'Logout'
-                    // reset interface
-                    resetInterface();
-                    //
-                    removeChildren(authenticate)
-                    authenticate.appendChild(authenticateButtons)
-                    // if loadSaveContainer remove it
-                    const loadSaveContainer = document.querySelector('#loadSaveContainer')
-                    if (loadSaveContainer){
-                        const chatBoxContainer = document.querySelector('#chat-box')
-                        chatBoxContainer.removeChild(loadSaveContainer)
-                    }
-
-                }
+                logoutButton.onclick = logoutButtonClick
                 // add load save buttons
                 const chatBoxContainer = document.querySelector('#chat-box')
                 const loadSaveContainer = createLoadSave()
                 chatBoxContainer.appendChild(loadSaveContainer)
-            }
-            // remove spinner
-            loginButtonSubmit.textContent = 'Login'
-            //   
+
+                // remove spinner
+                loginButtonSubmit.textContent = 'Login'
+                //  
+            } else { // login failed
+                if (loginRes.includes('Not allowed')){ // wrong pass
+                    const failureNote = document.createElement('div')
+                    failureNote.classList.add('failure-note')
+                    failureNote.textContent = 'Password is incorrect.'
+                    loginPage.appendChild(failureNote)
+                } else if (loginRes.includes('User not found.')) { // no user
+                    const failureNote = document.createElement('div')
+                    failureNote.classList.add('failure-note')
+                    failureNote.textContent = 'Username not found.'
+                    loginPage.appendChild(failureNote)
+                }
+
+                // reset loginbuttonsubmit
+                loginButtonSubmit.textContent = 'Login'
+
+                const insteadExists = authenticate.querySelector('#instead')
+                if (!insteadExists){
+                    loginPage.appendChild(inlineSignupButton)
+            }} 
+            
     }}
     // login/signup end
     //           
@@ -593,6 +487,80 @@ async function handleDOMContentLoaded() {
 // Add event listener for DOMContentLoaded and call the async function
 document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
 
+async function logoutButtonClick() {
+    // add spinner
+    logoutButton.textContent = ''
+    logoutButton.appendChild(spinner)
+    //
+    const resp = await logoutUser()
+    logoutButton.textContent = 'Logout'
+    // reset interface
+    resetInterface();
+    //
+    // reset signupPage
+    signupPage = createSignupPage()
+    loginPage = createLoginPage()
+    //
+    removeChildren(authenticate)
+    authenticate.appendChild(authenticateButtons)
+    // if loadSaveContainer remove it
+    const loadSaveContainer = document.querySelector('#loadSaveContainer')
+    if (loadSaveContainer){
+        const chatBoxContainer = document.querySelector('#chat-box')
+        chatBoxContainer.removeChild(loadSaveContainer)
+    }
+}
+
+function removeNotes(){
+    const allSuccessNoteElements = document.getElementsByClassName('success-note')
+    for (const el of allSuccessNoteElements){
+        el.parentElement.removeChild(el)
+    }
+    const allFailureNoteElements = document.getElementsByClassName('failure-note')
+    for (const el of allFailureNoteElements){
+        el.parentElement.removeChild(el)
+}}
+
+function createSignupPage(){
+    const signupPage = document.createElement('div')
+    signupPage.innerHTML = `
+                <div class="auth-box">
+                    <input type="text" id="signUsername" class="input-text" placeholder="Username" />
+                    <input type="password" id="signPassword" class="input-text" placeholder="Password" />
+                </div>
+                <div class="button-box">
+                    <button id="signupButtonSubmit">Signup</button>
+                </div>
+    `
+    signupPage.id = 'signupPage'
+    signupPage.classList.add('authentication-box')
+    return signupPage
+}
+function createLoginPage(){
+    const loginPage = document.createElement('div')
+    loginPage.innerHTML = `
+                <div class="auth-box">
+                    <input type="text" id="logUsername" class="input-text" placeholder="Username" />
+                    <input type="password" id="logPassword" class="input-text" placeholder="Password" />
+                </div>
+                <div class="button-box">
+                    <button id="loginButtonSubmit">Login</button>
+                </div>
+    `
+    loginPage.id = 'loginPage'
+    loginPage.classList.add('authentication-box')
+    return loginPage
+}
+
+function createLogoutContainer(){
+    const logoutContainer = document.createElement('div')
+    logoutContainer.innerHTML = `
+    <button id="logoutButton">Logout</button>
+    `
+    logoutContainer.id = 'logoutContainer'
+    logoutContainer.classList.add('button-box')
+    return logoutContainer
+}
 async function logEvent(event){
     let target = event.target
     let branch = target.parentElement
