@@ -11,29 +11,24 @@
     <link rel="stylesheet" href="front.css">
 </head>
 <body>
-
+    <div id="toast-success" class="toast-success">Save successful!</div>
+    <div id="toast-failure" class="toast-failure">Save successful!</div>
     <div id="chat-container">
+        
         <div id="authenticate">
 
-            <div id="authenticateButtons" class="button-box">
-                <button id="loginButton">Login</button>
-                <button id="signupButton">Signup</button>
-            </div>
-
         </div>  
-
+        
         <div id="chat-box">
             <div id="messages">
                 <div class="branch-container">
-                    <div class="branch">
-                        <div id="first-message" class="editable message user" contenteditable="true" data-placeholder="New message"></div>
+                    <div class="branch" id="first-branch">
+                        <!-- <div id="first-message" class="editable message user" contenteditable="true" data-placeholder="New message"></div> -->
                     </div> 
                 </div>
             </div> 
         </div>
     </div>
-    
-    
     <script src='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@latest/build/highlight.min.js'></script>
     <script type="module" src="front.js"></script>
 </body>

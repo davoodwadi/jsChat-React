@@ -5,17 +5,17 @@ export async function load(req, res) {
     try {
         console.log('Load latest*****************')
         if (!req.session.userId){
-            res.json('Not logged in. Please login.');
+            res.status(404).json({message: 'Not logged in. Please login.'});
         } else {
             const user = await id2User(req.session.userId);
             if (!user) {
-                res.json('User not found. Please login.');
+                res.status(404).json({message: 'User not found. Please login.'});
             } else {
                 const latest = await getLatestSession(user.username);
                 console.log('loading latest session');
                 // console.log(latest)
                 
-                res.json(latest);
+                res.status(200).json(latest);
             }
         }
         
@@ -41,7 +41,7 @@ export async function save(req, res) {
                 await addSaveContainer(user.username, saveContainer);
                 console.log('adding saveContainer for ' + user.username)
                 const updatedUser = await getUser(user.username)
-                res.json(updatedUser)
+                res.json('success')
             }
         }
     } catch (error) {
@@ -175,7 +175,7 @@ export function authenticate(req, res, next) {
     if (req.session.userId) {
         next();
     } else {
-        res.status(200).send('Unauthorized. Please log in.');
+        res.status(404).json({message: 'Unauthorized. Please log in.'});
     }
 };
 

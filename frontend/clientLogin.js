@@ -45,12 +45,14 @@ export async function getProfile(){
     const res = await fetch('/users/profile', {
         method: 'GET',
     })
+    // console.log(await res.json())
     if (res.ok) {
         const responseData = await res.json();
-        
         return responseData
     } else {
-        console.error('Error:', res.status, res.statusText);
+        console.log('no profile found')
+        return undefined
+        // console.error('Error:', res.status, res.statusText);
     }
 }
    
@@ -100,16 +102,11 @@ export async function saveSession(saveContainer){
     }
 }
 
-export async function loadLatestSession(username, password){
+export async function loadLatestSession(){
     const res = await fetch('/users/load', {
-        method: 'POST',
-        body: JSON.stringify({
-            username: username,
-            password: password,
-        }), 
-        headers: { 'Content-Type': 'application/json' }, 
+        method: 'GET'
     })
-    
+    console.log(res.status) // 200 for success, 404 for 'not found'
     if (res.ok) {
         const responseData = await res.json();
         

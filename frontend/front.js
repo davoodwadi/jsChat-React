@@ -6,7 +6,9 @@ import { signupUser, loginUser, logoutUser, getProfile, testSession, saveSession
 const apiUrlGPT = '/api/gpt/completions/stream' 
 // const apiUrlGPT = 'https://chat.intelchain.io/api/gpt/completions/stream' 
 // const apiUrlGPT = 'http://127.0.0.1:3000/api/gpt/completions/stream' 
-const decoder = new TextDecoder();
+// const decoder = new TextDecoder();
+
+
 let bot_default_message = `To load a CSV file using Python, you can use the \`pandas\` library, which is a powerful tool for data manipulation and analysis. Here's a basic example:
 
 \`\`\`python
@@ -42,7 +44,8 @@ const assistantEOT = `<|eot_id|>\n\n`
 const assistantPrompt = `${assistantTag}{text}${assistantEOT}`
 const log = console.log
 
-const dots = createDots();
+const dots = createDots('bot');
+const dotsUser = createDots('user');
 
 const gpt = true;
 const max_tokens = 2000;
@@ -70,8 +73,6 @@ const removeChildren = (elem) => {
     }
 }
 
-
-
 async function saveDOM(){
     const allMessages = document.getElementById('messages')
     const profile = await getProfile()
@@ -79,18 +80,24 @@ async function saveDOM(){
     log('*'.repeat(50))
     // const saveResp = await saveSession(profile.username, profile.password, saveContainer)
     const saveResp = await saveSession(saveContainer)
-    console.log('saved session...')
-    // const response = await saveAsJSON(saveContainer);
+    console.log('saved session... ', saveResp)
+    if (saveResp=='success'){
+        showToast('success', 'Session saved successfully.')
+    } else {
+        showToast('failure', 'Error saving the session.')
+    }
     log('*'.repeat(50))
 }
 async function loadDOM() {
     // get latest message
     const profile = await getProfile()
-    const latestSession = await loadLatestSession(profile.username, profile.password) // time and saveContainer attribute
+    const latestSession = await loadLatestSession() // time and saveContainer attribute
     if (!latestSession.saveContainer) {
         console.warn('No saved container found. Please save first.');
+        showToast('failure', "You have to save first.")
         return; // Exit if nothing is saved to avoid issues
     }
+    showToast('success', 'Loaded successfully.')
     log('*'.repeat(50))
     console.log('loading');
     const allMessages = document.getElementById('messages');
@@ -175,9 +182,33 @@ const createLoadSave = () => {
         resetButton.textContent = 'Reset'
     }
 
+    // apply only to messages
+    const messageContainer = document.querySelector("#messages")
+    const zoomOutButton = document.createElement('button');
+    zoomOutButton.id = 'zoomOutButton'
+    zoomOutButton.textContent = 'Zoom Out'
+    zoomOutButton.addEventListener('click', () => {
+        // Calculate the scale needed for holistic view
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const contentWidth = messageContainer.scrollWidth;
+        const contentHeight = messageContainer.scrollHeight;
+        const scaleX = viewportWidth / contentWidth;
+        const scaleY = viewportHeight / contentHeight;
+        const scale = Math.min(scaleX, scaleY, 1); // Ensure scaling doesn't exceed 1
+        console.log(scaleX, scaleY)
+        console.log(contentWidth, contentHeight)
+        console.log(viewportWidth, viewportWidth)
+
+        // Apply the scale transform
+        messageContainer.style.transform = `scale(${scale})`;
+        messageContainer.style.transformOrigin = 'center left'; // Set the origin for scaling
+    });
+
     loadSaveContainer.appendChild(loadButton)
     loadSaveContainer.appendChild(saveButton)
     loadSaveContainer.appendChild(resetButton)
+    loadSaveContainer.appendChild(zoomOutButton)
     return loadSaveContainer
 }
 const createProfileSection = (profile) => {
@@ -206,15 +237,51 @@ const createProfileSection = (profile) => {
     return profileSection
 }
 
+function showToast(outcome, note) {
+    // outcome: failure or success
+    const toast = document.getElementById(`toast-${outcome}`);
+    if (note){
+        toast.textContent = note
+    } else if (outcome=='success'){
+         toast.textContent = 'Successful.'
+    } else {
+        toast.textContent = 'Failed.'
+    }
+    toast.className = `toast-${outcome} show`;
+    setTimeout(() => {
+        toast.className = toast.className.replace("show", "");
+    }, 3000); // Duration for how long the toast is displayed
+}
 
+
+const chatContainer = document.querySelector('#chat-container')
+chatContainer.appendChild(dotsUser)
 async function handleDOMContentLoaded() {
     
-    // signup/signin 
+    // branch-container logic:
+    // branch
+    //  user
+    //  bot
+    //  branch-container
+    //      branch
+    //          user
+    //          bot 
+    // signup/signin outside DOMLoaded
     // 
-    const authenticateButtons = document.querySelector('#authenticateButtons')
-    const signupButton = document.getElementById('signupButton')
-    const loginButton = document.getElementById('loginButton')
-    // const authenticateSignup = document.getElementById('authenticateSignup')
+    const authenticateButtons = document.createElement('div')
+    authenticateButtons.id = 'authenticateButtons'
+    authenticateButtons.classList.add('button-box')
+
+    const signupButton = document.createElement('button')
+    signupButton.id = 'signupButton'
+    signupButton.textContent = 'Signup'
+    const loginButton = document.createElement('button')
+    loginButton.id = 'loginButton'
+    loginButton.textContent = 'Login'
+    authenticateButtons.appendChild(signupButton)
+    authenticateButtons.appendChild(loginButton)
+
+
     const authenticateSignup = document.createElement('div')
     authenticateSignup.innerHTML = `
                 <div class="auth-box">
@@ -227,7 +294,7 @@ async function handleDOMContentLoaded() {
     `
     authenticateSignup.id = 'authenticateSignup'
     authenticateSignup.classList.add('authentication-box')
-    
+
     // const authenticateLogin = document.getElementById('authenticateLogin')
     const authenticateLogin = document.createElement('div')
     authenticateLogin.innerHTML = `
@@ -253,13 +320,15 @@ async function handleDOMContentLoaded() {
 
     const authenticate = document.getElementById('authenticate')
     // check if already logged in
-    try {
-        const profile = await getProfile()
-        
-        if (!profile){
-            throw new Error('not logged in');   
-        }
-        // redirect
+    const profile = await getProfile()
+    // remove loading screen dotsUser
+    chatContainer.removeChild(dotsUser)
+    //
+    if (!profile){
+        console.log('no profile found')
+        authenticate.appendChild(authenticateButtons)
+    } else{
+        // profile found
         // create profile
         const profileSection = createProfileSection(profile)
         // remove children
@@ -275,6 +344,9 @@ async function handleDOMContentLoaded() {
             const resp = await logoutUser()
             console.log('logged out', resp)
             logoutButton.textContent = 'Logout'
+            // reset interface
+            resetInterface();
+            //
             removeChildren(authenticate)
             authenticate.appendChild(authenticateButtons) 
             // if loadSaveContainer remove it
@@ -288,9 +360,8 @@ async function handleDOMContentLoaded() {
         const chatBoxContainer = document.querySelector('#chat-box')
         const loadSaveContainer = createLoadSave()
         chatBoxContainer.appendChild(loadSaveContainer)
-    } catch(error){
-        console.log('Not logged in')
     }
+    
     //
     const inlineLoginButton = document.createElement('button')
     inlineLoginButton.textContent = 'Login instead'
@@ -304,7 +375,7 @@ async function handleDOMContentLoaded() {
     inlineSignupButton.onclick = () => {
         signupButton.onclick()
     }
-    
+
 
     signupButton.onclick = () => {
         log('signing up')
@@ -331,15 +402,15 @@ async function handleDOMContentLoaded() {
             //
             const signUsername = document.getElementById('signUsername').value.toLowerCase()
             const signPassword = document.getElementById('signPassword').value.toLowerCase()
-            log(signUsername)
-            log(signPassword)
+            // log(signUsername)
+            // log(signPassword)
             const res = await signupUser(signUsername, signPassword)
-            console.log(res)
+            // console.log(res)
             if (res.includes('the username already exists.')){
                 const failureNote = document.createElement('div')
                 failureNote.classList.add('failure-note')
                 failureNote.textContent = 'Username already exists'
-    
+
                 authenticateSignup.appendChild(failureNote)
                 const insteadExists = authenticate.querySelector('#instead')
                 console.log('insteadExists')
@@ -351,17 +422,13 @@ async function handleDOMContentLoaded() {
             } else { // signup successful
                 const successNote = document.createElement('div')
                 successNote.classList.add('success-note')
-                successNote.textContent = 'Signed up.'
+                successNote.textContent = 'Signed up. Redirecting.'
                 
                 authenticateSignup.appendChild(successNote)
                 
                 // login automatically
                 const loginRes = await loginUser(signUsername, signPassword)
 
-                // store session id
-                const responseTest = await testSession();
-                // console.log('responseTest')
-                // console.log(responseTest)
                 const profile = await getProfile()
                 // redirect
                 // create profile
@@ -371,6 +438,9 @@ async function handleDOMContentLoaded() {
                 authenticate.appendChild(profileSection)
                 // // create logoutButton
                 authenticate.appendChild(authenticateLogout)
+                // remove authenticateSignup.appendChild(successNote)
+                authenticateSignup.removeChild(successNote)
+                //
                 const logoutButton = document.querySelector('#logoutButton')
                 logoutButton.onclick = async () => {
                     // add spinner
@@ -380,6 +450,9 @@ async function handleDOMContentLoaded() {
                     const resp = await logoutUser()
                     console.log('logged out', resp)
                     logoutButton.textContent = 'Logout'
+                    // reset interface
+                    resetInterface();
+                    //
                     removeChildren(authenticate)
                     authenticate.appendChild(authenticateButtons)
                     // if loadSaveContainer remove it
@@ -459,12 +532,9 @@ async function handleDOMContentLoaded() {
                 console.log(loginRes)
                 const successNote = document.createElement('div')
                 successNote.classList.add('success-note')
-                successNote.textContent = 'Logged in.'
+                successNote.textContent = 'Logged in. Redirecting.'
                 authenticateLogin.appendChild(successNote)
                 // store session id
-                const responseTest = await testSession();
-                console.log('responseTest')
-                console.log(responseTest)
                 const profile = await getProfile()
                 
                 // redirect
@@ -475,6 +545,9 @@ async function handleDOMContentLoaded() {
                 authenticate.appendChild(profileSection)
                 // // create logoutButton
                 authenticate.appendChild(authenticateLogout)
+                // remove successNote
+                authenticateLogin.removeChild(successNote)
+                //
                 const logoutButton = document.querySelector('#logoutButton')
                 logoutButton.onclick = async () => {
                     // add spinner
@@ -484,6 +557,9 @@ async function handleDOMContentLoaded() {
                     const resp = await logoutUser()
                     console.log('logged out', resp)
                     logoutButton.textContent = 'Logout'
+                    // reset interface
+                    resetInterface();
+                    //
                     removeChildren(authenticate)
                     authenticate.appendChild(authenticateButtons)
                     // if loadSaveContainer remove it
@@ -502,130 +578,18 @@ async function handleDOMContentLoaded() {
             // remove spinner
             loginButtonSubmit.textContent = 'Login'
             //   
-        }
-    }
-    
+    }}
     // login/signup end
-    //
+    //           
 
-    let messageElements = document.getElementsByClassName('message')
-
-    // branch-container logic:
-    // branch
-    //  user
-    //  bot
-    //  branch-container
-    //      branch
-    //          user
-    //          bot        
-    // event listener for first-message  
-    for (const messageElement of messageElements){
-        if (messageElement.classList.contains('user')){
-            messageElement.role = 'user'
-            const old = messageElement.textContent==='' ?  'no' : 'yes'
-            messageElement.setAttribute('old', old)
-            // log(messageElement.old)
-            messageElement.addEventListener('keydown', handleKeydown);
-        } else {
-            messageElement.role = 'bot'
-        }
-        log(messageElement.role)
-
-    }
-    //
-    // save the intial layout
-    // saveDOM();
-    
-    // if (saveButton){
-    //     saveButton.onclick = saveDOM
-    // }
-    // if (loadButton){
-    //     loadButton.onclick = loadDOMnew
-    // }
-    
-    async function saveAsJSON(container){
-        const saveBody = {
-            'username': 'davoodwadi',
-            'saveContainer': container
-        }
-        try {
-            // Making the POST request
-            const response = await fetch('http://127.0.0.1:4000/api/redis/save', {
-            method: 'POST', // HTTP method
-            headers: {
-                'Content-Type': 'application/json', // Indicates the body format
-            },
-            body: JSON.stringify(saveBody), // Converting the JavaScript object to a JSON string
-            });
-
-            // Check if the response was successful
-            if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-            }
-            // Parse the JSON response
-            const data = await response.json();
-            console.log(data)
-            // console.log('Response data:', data); // Handling the response data
-        } catch (error) {
-            // Handling any errors
-            console.error('There was a problem with the fetch operation:', error);
-        }
-        };
-
-    // const loadButton = document.getElementById('load')
-    
-    async function loadDOMnew() {
-        const loadBody = {'username': username}
-        try {
-            // Making the POST request
-            const response = await fetch('http://127.0.0.1:4000/api/redis/load', {
-            method: 'POST', // HTTP method
-            headers: {
-                'Content-Type': 'application/json', // Indicates the body format
-            },
-            body: JSON.stringify(loadBody), // Converting the JavaScript object to a JSON string
-            });
-            // Check if the response was successful
-            if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-            }
-            // Parse the JSON response
-            const data = await response.json();
-            console.log(data)
-            const html = data['saveContainer']
-            if (!html){
-                console.log(`No entry found for ${username}`)
-            } else {
-                log('*'.repeat(50))
-                console.log(`loading ${username}...`);
-                const allMessages = document.getElementById('messages');
-                allMessages.innerHTML = html; // Load saved content
-                console.log('loaded snapshot');
-                log(allMessages.innerHTML)
-                log('*'.repeat(50))
-                // Reattach event listeners
-                const messageElements = allMessages.getElementsByClassName('user');
-                for (const messageElement of messageElements) {
-                    // Clear any existing listeners (if using removeEventListener)
-                    messageElement.removeEventListener('keydown', handleKeydown); // Clear previous listeners
-                    // Reattach the listener
-                    messageElement.addEventListener('keydown', handleKeydown);
-                }
-
-
-            }
-            
-            // console.log('Response data:', data); // Handling the response data
-        } catch (error) {
-            // Handling any errors
-            console.error('There was a problem with the fetch operation:', error);
-        }
-    }
-    // new load
-
-
-
+    // add first message box after content is loaded
+    const firstBranch = document.querySelector('#first-branch')
+    const messageElement = await createMessageElement('user')
+    messageElement.setAttribute('old', 'no')
+    firstBranch.appendChild(messageElement)
+    // end of first message element
 };
+
 // Add event listener for DOMContentLoaded and call the async function
 document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
 
@@ -805,6 +769,8 @@ async function createMessageElement(role, pretext, branch){
             messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
             messageElement.text = ''
             
+            // try to set max-width: 95vw;
+            messageElement.style.maxWidth= '95vw';
             console.log('got stream response => reading it chunk by chunk.')
             try {
                 // const textDecoded  = await getDummyMessage()
@@ -812,6 +778,7 @@ async function createMessageElement(role, pretext, branch){
                 branch.replaceChild(messageElement, dots)
                 const reader = res.body.getReader();
                 let result;
+                let refreshCounter = 0
                 while (!(result = await reader.read()).done) {      
                     // replace dots
                     if (branch.contains(dots)){
@@ -822,12 +789,19 @@ async function createMessageElement(role, pretext, branch){
                     messageElement.text = messageElement.text + textDecoded;
 
                     mdToHTML(messageElement.text, messageElement);
-                    messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
+                    if (refreshCounter%3===0){
+                        messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
+                    }
+                    refreshCounter++
                 }
                 reader.releaseLock();
             }
             catch (error) {
                 console.error('Error reading stream:', error)
+            } finally{
+                // reset max-width for the parents only
+                // messageElement.style.maxWidth= '';
+                setAttributeForMessageParents(messageElement)
             }
 
         } else {
@@ -869,9 +843,9 @@ async function getDummyMessage() {
     });
 }
 
-function createDots(){
+function createDots(role){
     const dots = document.createElement('div');
-    dots.classList.add('message', 'bot', 'dots-message');
+    dots.classList.add('message', role, 'dots-message');
     const dotsContainer = document.createElement('div');
     dotsContainer.classList.add('dots-container');
     
@@ -914,6 +888,26 @@ function createElementArray(lastElement){
     
     return messageElementArray
 }
+
+function setAttributeForMessageParentsInner(el){
+    for (let i = el.children.length - 1; i >= 0; i--) {
+        const child = el.children[i];
+        if (child.classList.contains('message') && (!child.classList.contains('dots-message'))){
+            console.log('*'.repeat(50))
+            console.log('before attribute set for: ', child)
+            child.style.maxWidth = ''
+            console.log('after set for: ', child)
+            console.log('width: ', window.getComputedStyle(el).width)
+            console.log('*'.repeat(50))
+        }
+        
+}};
+function setAttributeForMessageParents(thisElement){
+    let element = thisElement.parentElement.parentElement;
+    while (element.id!=="chat-container"){
+        setAttributeForMessageParentsInner(element);
+        element = element.parentElement;
+}}
 
 
 

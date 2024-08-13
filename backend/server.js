@@ -14,6 +14,7 @@ const __dirname = path.dirname(__filename);
 // const isHttps = true;
 const port = process.env.PORT || 3000;
 
+const app = express();
 // mongodb session
 const store = new MongoDBStore(session);
 const mongoPassword = process.env.mongoPassword
@@ -23,12 +24,10 @@ const mongodbStore = new store({
   uri: uri,
   databaseName: 'chat',
   collection: 'chatSessions',
-},
-function(error) {
+}, function(error) {
   // Should have gotten an error
   console.log('*****session DB error:', error)
-}
-);
+});
 
 // Catch errors
 mongodbStore.on('error', (error) => {
@@ -36,7 +35,6 @@ mongodbStore.on('error', (error) => {
   console.error(error);
 });
 
-const app = express();
 console.log('process.env.NODE_ENV')
 console.log(process.env.NODE_ENV)
 
@@ -62,7 +60,7 @@ app.get('/', (req, res) => {
 // test session storage
 app.get('/test-session', test);
 
-app.post('/users/load', load);
+app.get('/users/load', load);
 app.post('/users/save', save);
 
 app.post('/users/signup', signup)
