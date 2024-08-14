@@ -1,0 +1,84 @@
+body {
+    /* font-family: Arial, sans-serif; */
+    /* font-size: 10px; */
+    margin: 0; /* Ensure no body margin affects layout */
+}
+
+#chat-container {
+    display: flex;
+    justify-content: center;
+    align-items: top;
+    background-color: #e0e0e0; /* Light gray background */
+}
+
+#chat-box {
+    background-color: #f0f0f0;
+    border: 1px solid #d34d4d;
+    transition: transform 0.3s ease; /* Smooth transition */
+    position: relative; /* To manage z-index */
+
+}
+/* #chat-box.zoomed-out {
+    transform: scale(0.2);
+} 
+*/
+
+#messages {
+    padding: 10px;
+    /* height: 10vh; */
+}
+
+.editable {
+    border: 1px solid #aaa;
+    padding: 10px;
+    /* min-height: 50px; */
+    box-sizing: border-box; /* Include padding and border in element's total width */
+    position: relative;
+}
+
+.user {
+    background-color: #fff; /* User message background */
+}
+
+/* Common label styles */
+.label {
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent white with a distinctive color */
+    padding: 3px; /* Smaller padding */
+    border-radius: 5px;
+    font-size: 8px; /* Smaller font size for labels */
+    color: black; /* Change color to ensure visibility */
+    top: 0px;
+    left: 0px;
+}
+
+/* Chat Container Indicator */
+#chat-container::before {
+    content: "Chat Container";
+    position: absolute; 
+    top: 10px; /* Adjust appropriately */
+    left: 10px; /* Adjust appropriately */
+}
+
+/* Chat Box Indicator */
+#chat-box::before {
+    content: "Chat Box";
+    position: absolute; 
+    top: -20px; /* Adjust as needed */
+    left: 10px; /* Adjust as needed */
+}
+
+/* Messages Indicator */
+#messages::before {
+    content: "Messages";
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* First Message Indicator */
+.message::before {
+    content: "First Message";
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+}

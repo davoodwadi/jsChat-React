@@ -22,21 +22,12 @@ body {
     /* margin-right: 150px; */
     
 }
-/* 
-#authenticate{
-    display: flex;
-    
-} */
 
 .button-box {
     display: flex;
     flex-direction:row;
     align-items: center;
     padding: 5px;
-    /* justify-content: center; */
-    /* justify-content: space-around; */
-    /* justify-content: space-evenly; */
-    /* justify-content: space-between; */
 }
 .authentication-box {
     display: flex;
@@ -196,7 +187,7 @@ button {
     border: none;
     border-radius: 5px;
     padding: 10px 15px;
-    font-size: 14px;
+    /* font-size: 14px; */
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
@@ -223,7 +214,7 @@ button:active {
 
 blockquote {
     font-family: Arial, sans-serif;
-    font-size: 1.1em;
+    /* font-size: 1.1em; */
     font-style: italic;
     color: #555555;
     border-left: 4px solid #e6f7ff;
@@ -254,20 +245,13 @@ blockquote p {
     margin-right: 1%;
 }
 
-.header div {
-    font-size: 12px;
-    font-weight: bold;
-    color: #5e5e5ece;
-}
-
-
 .clipboard {
     cursor: pointer;
     border: none;
     background-color: #e6f7ff;
     border-radius: 5px;
     padding: 5px 10px;
-    font-size: 12px;
+    /* font-size: 12px; */
     font-weight: bold;
     color: #0056b3;
     /* color: #5e5e5ece; */
@@ -277,9 +261,24 @@ blockquote p {
     transition: background-color 0.3s, color 0.3s;
 }
 
+
+.header {
+    /* font-size: 12px; */
+    font-weight: bold;
+    color: #5e5e5ece;
+}
+/* 
+.header div {
+
+    font-weight: bold;
+    color: #5e5e5ece;
+} 
+*/
+
+/* 
 .clipboard i {
     font-size: 14px;
-}
+} */
 
 .clipboard:hover {
     background-color: #0056b3;

@@ -47,6 +47,20 @@ const log = console.log
 const dots = createDots('bot');
 const dotsUser = createDots('user');
 
+// change fontsize to zoom
+const zoomFactor = 4
+const chatBoxContainer = document.querySelector('#chat-box')
+let fontSize = window.getComputedStyle(document.body).fontSize
+fontSize = parseInt(fontSize, 10)
+console.log('fontSize')
+console.log(fontSize)
+console.log(chatBoxContainer)
+chatBoxContainer.style.fontSize = `${fontSize}px`
+console.log('chatBoxContainer.style.fontSize')
+console.log(chatBoxContainer.style.fontSize)
+
+
+
 const gpt = true;
 const max_tokens = 2000;
 // test different prompts:
@@ -187,22 +201,18 @@ const createLoadSave = () => {
     const zoomOutButton = document.createElement('button');
     zoomOutButton.id = 'zoomOutButton'
     zoomOutButton.textContent = 'Zoom Out'
+    
     zoomOutButton.addEventListener('click', () => {
-        // Calculate the scale needed for holistic view
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const contentWidth = messageContainer.scrollWidth;
-        const contentHeight = messageContainer.scrollHeight;
-        const scaleX = viewportWidth / contentWidth;
-        const scaleY = viewportHeight / contentHeight;
-        const scale = Math.min(scaleX, scaleY, 1); // Ensure scaling doesn't exceed 1
-        console.log(scaleX, scaleY)
-        console.log(contentWidth, contentHeight)
-        console.log(viewportWidth, viewportWidth)
-
-        // Apply the scale transform
-        messageContainer.style.transform = `scale(${scale})`;
-        messageContainer.style.transformOrigin = 'center left'; // Set the origin for scaling
+        const currentFontSize = parseInt(messageContainer.style.fontSize, 10)
+        console.log('currentFontSize')
+        console.log(currentFontSize)
+        if (currentFontSize===fontSize || Number.isNaN(currentFontSize)){ //original size
+            console.log('zoomout original size: reducing by a factor of '+zoomFactor)
+            messageContainer.style.fontSize = `${fontSize/zoomFactor}px`
+        } else { //zommed out
+            console.log('zoomed in already, resetting')
+            messageContainer.style.fontSize = `${fontSize}px`
+        }   
     });
 
     loadSaveContainer.appendChild(loadButton)
@@ -482,6 +492,16 @@ async function handleDOMContentLoaded() {
     messageElement.setAttribute('old', 'no')
     firstBranch.appendChild(messageElement)
     // end of first message element
+
+    // chatBoxContainer.addEventListener('click', function() {
+        // if (parseInt(this.style.fontSize, 10)===fontSize){ //original size
+        //     this.style.fontSize = `${fontSize/zoomFactor}px`
+        // } else { //zommed out
+        //     this.style.fontSize = `${fontSize}px`
+        // }   
+    // });
+    // zoom end //
+
 };
 
 // Add event listener for DOMContentLoaded and call the async function

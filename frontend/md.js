@@ -28,12 +28,12 @@ function putInCodeContainer(highlightedCode, rawCode, language){
   part1.innerHTML = `${language}`;
   
 
-  // const part2 = document.createElement('div');
-  // part2.classList.add('clipboard', 'non-editable');
-  // part2.innerHTML = '<i class="fa-duotone fa-solid fa-copy"></i> Copy code';
-  const part2 = document.createElement('button');
+  const part2 = document.createElement('div');
+  // const part2 = document.createElement('button');
   part2.classList.add('clipboard');
-  part2.innerHTML = '<i class="fa-duotone fa-solid fa-copy"></i> Copy code';
+  // part2.innerHTML = '<i class="fa-duotone fa-solid fa-copy"></i> Copy code';
+  part2.innerHTML = 'Copy code';
+  console.log('created copy code with div')
  
   header.appendChild(part1);
   header.appendChild(part2);
