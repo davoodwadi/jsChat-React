@@ -1,7 +1,8 @@
 import markdownIt from 'https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/+esm'
-import { getResponseServer } from "./apiModule.js";
+// import { getResponseServer } from "./apiModule.js";
 import { mdToHTML } from './md.js';
-import { signupUser, loginUser, logoutUser, getProfile, testSession, saveSession, loadLatestSession } from './clientLogin.js';
+// import { signupUser, loginUser, logoutUser, getProfile, testSession, saveSession, loadLatestSession } from './clientLogin.js';
+
 
 const apiUrlGPT = '/api/gpt/completions/stream' 
 // const apiUrlGPT = 'https://chat.intelchain.io/api/gpt/completions/stream' 
@@ -89,7 +90,7 @@ const removeChildren = (elem) => {
 
 async function saveDOM(){
     const allMessages = document.getElementById('messages')
-    const profile = await getProfile()
+    const profile = await getProfileDummy()
     const saveContainer = allMessages.innerHTML
     log('*'.repeat(50))
     // const saveResp = await saveSession(profile.username, profile.password, saveContainer)
@@ -104,7 +105,7 @@ async function saveDOM(){
 }
 async function loadDOM() {
     // get latest message
-    const profile = await getProfile()
+    const profile = await getProfileDummy()
     const latestSession = await loadLatestSession() // time and saveContainer attribute
     if (!latestSession.saveContainer) {
         console.warn('No saved container found. Please save first.');
@@ -263,6 +264,8 @@ function showToast(outcome, note) {
     }, 3000); // Duration for how long the toast is displayed
 }
 
+let authenticateButtons
+let authenticate
 
 const chatContainer = document.querySelector('#chat-container')
 chatContainer.appendChild(dotsUser)
@@ -278,9 +281,9 @@ async function handleDOMContentLoaded() {
     //          bot 
     // signup/signin outside DOMLoaded
     // 
-    const authenticate = document.getElementById('authenticate')
+    authenticate = document.getElementById('authenticate')
 
-    const authenticateButtons = document.createElement('div')
+    authenticateButtons = document.createElement('div')
     authenticateButtons.id = 'authenticateButtons'
     authenticateButtons.classList.add('button-box')
 
@@ -298,7 +301,7 @@ async function handleDOMContentLoaded() {
     let loginPage = createLoginPage()
     let logoutContainer = createLogoutContainer()
     // check if already logged in
-    const profile = await getProfile()
+    const profile = await getProfileDummy()
     // remove loading screen dotsUser
     chatContainer.removeChild(dotsUser)
     //
@@ -382,7 +385,7 @@ async function handleDOMContentLoaded() {
                 // login automatically
                 const loginRes = await loginUser(signUsername, signPassword)
 
-                const profile = await getProfile()
+                const profile = await getProfileDummy()
                 // redirect
                 // create profile
                 const profileSection = createProfileSection(profile)
@@ -423,10 +426,9 @@ async function handleDOMContentLoaded() {
 
             const logUsername = document.getElementById('logUsername').value.toLowerCase()
             const logPassword = document.getElementById('logPassword').value.toLowerCase()
-            // log(logUsername)
-            // log(logPassword)
-            const loginRes = await loginUser(logUsername, logPassword)
-                            
+            
+            // const loginRes = await loginUser(logUsername, logPassword)
+            const loginRes = 'Correct'
 
             console.log(loginRes)
             if (loginRes.includes('Correct')){ // login successful
@@ -435,7 +437,7 @@ async function handleDOMContentLoaded() {
                 successNote.textContent = 'Logged in. Redirecting.'
                 loginPage.appendChild(successNote)
                 // store session id
-                const profile = await getProfile()
+                const profile = await getProfileDummy()
 
                 // reset loginbuttonsubmit
                 loginButtonSubmit.textContent = 'Login'
@@ -507,19 +509,26 @@ async function handleDOMContentLoaded() {
 // Add event listener for DOMContentLoaded and call the async function
 document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
 
+async function getProfileDummy(){
+    return {lastLogin: new Date(), username: 'Dummy'}
+}
+
 async function logoutButtonClick() {
     // add spinner
     logoutButton.textContent = ''
     logoutButton.appendChild(spinner)
     //
-    const resp = await logoutUser()
+    // const resp = await logoutUser()
     logoutButton.textContent = 'Logout'
     // reset interface
     resetInterface();
     //
     // reset signupPage
-    signupPage = createSignupPage()
-    loginPage = createLoginPage()
+    console.log(authenticate)
+    console.log(authenticateButtons)
+    
+    const signupPage = createSignupPage()
+    const loginPage = createLoginPage()
     //
     removeChildren(authenticate)
     authenticate.appendChild(authenticateButtons)
@@ -738,19 +747,19 @@ async function createMessageElement(role, pretext, branch){
         if (gpt){
             // let textDecoded = '' 
             console.log(`await fetch(apiUrlGPT`)
-            const res = await fetch(apiUrlGPT, {
-                method: 'POST',
-                body: JSON.stringify({
-                    messages: pretext,
-                    max_tokens: max_tokens,
-                }), 
-                headers: { 'Content-Type': 'application/json' },   
-            })
+            // const res = await fetch(apiUrlGPT, {
+            //     method: 'POST',
+            //     body: JSON.stringify({
+            //         messages: pretext,
+            //         max_tokens: max_tokens,
+            //     }), 
+            //     headers: { 'Content-Type': 'application/json' },   
+            // })
 
-            if (!res.ok) {
-                console.error('API call failed with status:', res.status);
-                return; // Handle the error accordingly
-            }            
+            // if (!res.ok) {
+            //     console.error('API call failed with status:', res.status);
+            //     return; // Handle the error accordingly
+            // }            
             
             messageElement.textContent = '' 
             messageElement.oldOutput = undefined
@@ -761,28 +770,28 @@ async function createMessageElement(role, pretext, branch){
             messageElement.style.maxWidth= '95vw';
             console.log('got stream response => reading it chunk by chunk.')
             try {
-                // const textDecoded  = await getDummyMessage()
-                // mdToHTML(textDecoded, messageElement);
+                const textDecoded  = await getDummyMessage()
+                mdToHTML(textDecoded, messageElement);
                 branch.replaceChild(messageElement, dots)
-                const reader = res.body.getReader();
-                let result;
-                let refreshCounter = 0
-                while (!(result = await reader.read()).done) {      
-                    // replace dots
-                    if (branch.contains(dots)){
-                        branch.replaceChild(messageElement, dots)
-                    } 
-                    const chunk = result.value; // This is a Uint8Array   
-                    const textDecoded = new TextDecoder("utf-8").decode(chunk); // Decode chunk to text
-                    messageElement.text = messageElement.text + textDecoded;
+                // const reader = res.body.getReader();
+                // let result;
+                // let refreshCounter = 0
+                // while (!(result = await reader.read()).done) {      
+                //     // replace dots
+                //     if (branch.contains(dots)){
+                //         branch.replaceChild(messageElement, dots)
+                //     } 
+                //     const chunk = result.value; // This is a Uint8Array   
+                //     const textDecoded = new TextDecoder("utf-8").decode(chunk); // Decode chunk to text
+                //     messageElement.text = messageElement.text + textDecoded;
 
-                    mdToHTML(messageElement.text, messageElement);
-                    if (refreshCounter%3===0){
-                        messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
-                    }
-                    refreshCounter++
-                }
-                reader.releaseLock();
+                //     mdToHTML(messageElement.text, messageElement);
+                //     if (refreshCounter%3===0){
+                //         messageElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'center'})
+                //     }
+                //     refreshCounter++
+                // }
+                // reader.releaseLock();
             }
             catch (error) {
                 console.error('Error reading stream:', error)
