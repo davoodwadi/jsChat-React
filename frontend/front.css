@@ -81,27 +81,18 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #fffacd; /* Lemon chiffon for a warm touch */
-    /* background-color: #e6f7ff; /* Light blue  */
-    /* background-color: #ffebcc;
-    color: #0056b3; /* Blue  */
-    
-    /* box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1); */
-    /* background-color: #f9f9f9; */
+    justify-content: center;
+    background-color: #fffacd;
     border: 1px solid #e0e0e0; /* Light gray border */
-    /* border-radius: 8px;  */
-    padding: 40px; /* Spacing inside the profile box */
-    margin-bottom: 80;
-    margin-top: 20px; /* Space above the profile section */
+    padding: 10px; /* Spacing inside the profile box */
     border-radius: 15px;
-    /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); */
 }
-
+ 
 .profile-title {
     font-size: 14px; /* Title size */
     /* color: #333; /* Dark text color */
     color: #0056b3; /* Blue  */
-    margin-bottom: 10px; /* Space below the title */
+    margin-bottom: 0px; /* Space below the title */
 }
 
 .profile-box {
@@ -187,11 +178,10 @@ button {
     border: none;
     border-radius: 5px;
     padding: 10px 15px;
-    /* font-size: 14px; */
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
-    margin: 5px; /* Add some space between buttons */
+    margin: 2px; /* Add some space between buttons */
 }
 
 .button-box {

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Horizontal Scrolling</title>
+    <style>
+      .container {
+        display: flex;
+        flex-direction: row;
+        border: 1px solid #ccc;
+        overflow-y: auto; /* Allow vertical scrolling */
+        overflow-x: auto; /* Enable horizontal scrolling */
+      }
+
+      .content {
+        padding: 10px;
+        font-size: 16px;
+        flex: auto;
+      }
+      .last-content {
+        width: 90vw;
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="content">
+        This is a long line of text that will not wrap inside the container, so
+        horizontal scrolling will be enabled to view the entire line. Add more
+        text here to demonstrate horizontal scrolling behavio
+      </div>
+      <div class="content">
+        This is a long line of text that will not wrap inside the container, so
+        horizontal scrolling will be enabled to view the entire line. Add more
+        text here to demonstrate horizontal scrolling behavior!
+      </div>
+      <div class="content">
+        This is a long line of text that will not wrap inside the container, so
+        horizontal scrolling will be enabled to view the entire line. Add more
+        text here to demonstrate horizontal scrolling behavior!
+      </div>
+      <div class="content">
+        This is a long line of text that will not wrap inside the container, so
+        horizontal scrolling will be enabled to view the entire line. Add more
+        text here to demonstrate horizontal scrolling behavior!
+      </div>
+      <div class="content last-content">
+        This is a long line of text that will not wrap inside the container, so
+        horizontal scrolling will be enabled to view the entire line. Add more
+        text here to demonstrate horizontal scrolling behavior!
+      </div>
+    </div>
+  </body>
+</html>
